@@ -1,0 +1,10 @@
+[Unit]
+Description=Keep track of media player activity
+Documentation=https://github.com/altdesktop/playerctl
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/playerctld daemon
+
+[Install]
+WantedBy=default.target
