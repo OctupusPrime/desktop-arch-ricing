@@ -4,6 +4,8 @@ This repository contains my personal configuration files for [Hyprland](https://
 
 ## Getting Started
 
+See the [SETUP.md](https://github.com/OctupusPrime/desktop-arch-ricing/blob/master/SETUP.md#hyprland-ricing) file for detailed setup instructions.
+
 1. **Clone this repository:**
 
 ```bash
@@ -23,17 +25,6 @@ stow */
 ```
 
 4. **Restart Hyprland** or log in to a new session.
-
-## Dependencies
-
-- Hyprland
-- stow
-- Wayland-compatible terminal `kitty`
-- Optional: `rofi`
-
-## Customization
-
-Edit the files in `hypr/` to change keybindings, appearance, or behavior. Refer to the [Hyprland Wiki](https://wiki.hyprland.org/) for configuration options.
 
 ## License
 
