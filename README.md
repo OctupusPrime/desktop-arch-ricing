@@ -19,7 +19,7 @@ cd dotfiles
 3. **Symlink the configs using GNU Stow:**
 
 ```bash
-stow *
+stow */
 ```
 
 4. **Restart Hyprland** or log in to a new session.
