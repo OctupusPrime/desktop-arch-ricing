@@ -3,7 +3,7 @@
 active_class=$(hyprctl activewindow | grep "class: " | cut -d' ' -f2)
 
 if [[ "$active_class" == "spotify" ]]; then
-  hyprctl dispatch togglespecialworkspace music
+  hyprctl dispatch workspace prev
 else
   spotify-launcher
 fi
