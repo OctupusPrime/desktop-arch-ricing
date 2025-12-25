@@ -3,7 +3,7 @@ import QtQuick.Effects
 
 Item {
   property var size: 24
-  property var source: ""
+  property var source: undefined
   property color color: theme.foreground
 
   width: size

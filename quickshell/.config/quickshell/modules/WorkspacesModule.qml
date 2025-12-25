@@ -1,7 +1,6 @@
 import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Effects
 
 import qs.components
 
@@ -33,8 +32,8 @@ Item {
 
       Behavior on Layout.preferredWidth {
         NumberAnimation {
-          duration: 200
-          easing.type: Easing.InOutQuad
+          duration: 150
+          easing.type: Easing.Linear
         }
       }
 
@@ -73,8 +72,8 @@ Item {
 
     Behavior on Layout.preferredWidth {
       NumberAnimation {
-        duration: 200
-        easing.type: Easing.InOutQuad
+        duration: 150
+        easing.type: Easing.Linear
       }
     }
   }

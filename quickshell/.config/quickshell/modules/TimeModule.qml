@@ -11,7 +11,7 @@ RowLayout {
     spacing: 2
 
     MyText {
-      text: DateTime.time
+      text: DateTimeService.time
       fontSize: 14
       fontWeight: 600
 
@@ -19,7 +19,7 @@ RowLayout {
     }
 
       MyText {
-      text: DateTime.date
+      text: DateTimeService.date
       fontSize: 12
       color: theme.mutedForeground
 

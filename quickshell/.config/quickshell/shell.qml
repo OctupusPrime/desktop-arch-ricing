@@ -1,5 +1,7 @@
 import Quickshell
+import Quickshell.Hyprland
 import QtQuick
+import QtQuick.Layouts
 
 import qs.common
 import qs.modules
@@ -17,8 +19,8 @@ ShellRoot {
 
     Component {
       PanelWindow {
+        id: panel
         required property var modelData
-
         screen: modelData
 
         anchors {
@@ -27,23 +29,53 @@ ShellRoot {
           right: true
         }
 
-        implicitHeight: 46
-
+        implicitHeight: theme.shellHeight
         color: theme.background
 
-        WorkspacesModule {
+        HyprlandFocusGrab {
+          id: focusGrab
+          windows: [panel]
+        }
+
+        RowLayout {
+          spacing: 22
+
+          anchors {
+            verticalCenter: parent.verticalCenter
+            left: parent.left
+            leftMargin: 20
+          }
+
+          CopilotModule {
+            dialogWidth: 600
+            dialogHeight: screen.height - theme.shellHeight - (theme.hyprlandGaps * 2)
+            focusGrab: focusGrab
+          }
+        }
+
+        RowLayout {
+          spacing: 22
+          
           anchors {
             verticalCenter: parent.verticalCenter
             horizontalCenter: parent.horizontalCenter
           }
+
+          WorkspacesModule {}
         }
 
-        TimeModule {
+        RowLayout {
+          spacing: 16
+
           anchors {
             verticalCenter: parent.verticalCenter
             right: parent.right
             rightMargin: 6
           }
+
+          KeyboardModule {}
+
+          TimeModule {}
         }
       }
     }
