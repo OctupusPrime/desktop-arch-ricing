@@ -18,7 +18,7 @@ RowLayout {
       Layout.alignment: Qt.AlignRight
     }
 
-      MyText {
+    MyText {
       text: DateTimeService.date
       fontSize: 12
       color: theme.mutedForeground

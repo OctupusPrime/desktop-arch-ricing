@@ -1,5 +1,4 @@
 import Quickshell
-import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
 
@@ -32,11 +31,6 @@ ShellRoot {
         implicitHeight: theme.shellHeight
         color: theme.background
 
-        HyprlandFocusGrab {
-          id: focusGrab
-          windows: [panel]
-        }
-
         RowLayout {
           spacing: 22
 
@@ -49,7 +43,6 @@ ShellRoot {
           CopilotModule {
             dialogWidth: 600
             dialogHeight: screen.height - theme.shellHeight - (theme.hyprlandGaps * 2)
-            focusGrab: focusGrab
           }
         }
 
@@ -61,7 +54,11 @@ ShellRoot {
             horizontalCenter: parent.horizontalCenter
           }
 
+          SystemMenuModule {}
+
           WorkspacesModule {}
+
+          DBusMenuModule {}
         }
 
         RowLayout {

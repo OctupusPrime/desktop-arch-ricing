@@ -1,4 +1,3 @@
-import Quickshell
 import Quickshell.Hyprland
 import QtQuick
 
@@ -11,7 +10,12 @@ Item {
 
   property int dialogWidth: 600;
   property int dialogHeight: 600;
-  property var focusGrab: null;
+
+  HyprlandFocusGrab {
+    id: focusGrab
+    windows: [panel]
+  }
+
 
   Item {
     visible: !HyprlandService.copilotCliOpened
