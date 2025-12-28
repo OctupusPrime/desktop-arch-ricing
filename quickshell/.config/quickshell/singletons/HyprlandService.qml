@@ -9,6 +9,16 @@ Singleton {
   property string keyboardLang: "UNK"
   property bool copilotCliOpened: false 
   property string copilotCliWindowId: ""
+
+  function openCopilotCli({x, y, width, height}) {
+    Hyprland.dispatch(`exec [float; pin; move ${x} ${y}; size ${width} ${height}; animation slide left; opacity 0.9] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`);
+    // Positions the cusor to bottom left of the terminal
+    Hyprland.dispatch(`movecursor ${x + 20} ${y + height - 20}`)
+  }
+
+  function closeCopilotCli() {
+    Hyprland.dispatch("closewindow class:^(copilot-cli)$");
+  }
   
   Socket {
     path: Hyprland.eventSocketPath

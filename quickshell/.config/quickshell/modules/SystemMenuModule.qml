@@ -1,35 +1,110 @@
+import Quickshell.Widgets
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import qs.singletons
 import qs.components
 
-MyDropdownMenu {
+MyPopover {
   id: systemMenuRoot
 
-  MyDropdownMenu.Trigger {
+  MyPopover.Trigger {
     MyIcon {
       source: "root:/assets/icons/arch.svg"
     }
   }
 
-  MyDropdownMenu.Content {
-    ColumnLayout {
-      Text {
-        text: "00000000000000000000000000000000000 "
+  MyPopover.Content {
+    WrapperItem {
+      margin: 4
+      width: 148
+
+      ColumnLayout {
+        spacing: 0
+
+        MenuLabel {
+          text: "System"
+        }
+        MenuItem {
+          text: "Sleep mode"
+          onClicked: SystemService.sleep()
+        }
+        MenuItem {
+          text: "Shutdown"
+          onClicked: SystemService.shutdown()
+        }
+        MenuItem {
+          text: "Restart"
+          onClicked: SystemService.restart()
+        }
       }
-      Text {
-        text: "00000000000000000000000000000000000 "
-      }
-            Text {
-        text: "00000000000000000000000000000000000 "
-      }
-            Text {
-        text: "00000000000000000000000000000000000 "
-      }
-            Text {
-        text: "00000000000000000000000000000000000 "
-      }
+    }
+  }
+
+  component MenuLabel: WrapperItem {
+    id: labelRoot
+    property string text: ""
+
+    Layout.fillWidth: true
+
+    topMargin: 6
+    bottomMargin: 6
+    leftMargin: 8
+    rightMargin: 8
+
+    MyText {
+      text: labelRoot.text
+      fontSize: sizes.text.sm
+      fontWeight: sizes.font.medium
+      color: theme.popoverForeground
+    }
+  }
+
+  component MenuItem: WrapperRectangle {
+    id: menuItemRoot
+    property string text: ""
+
+    signal clicked()
+
+    Layout.fillWidth: true
+
+    topMargin: 6
+    bottomMargin: 6
+    leftMargin: 8
+    rightMargin: 8
+
+    color: hoverHandler.hovered ? theme.accent : "transparent"
+    radius: sizes.rounded.sm
+
+    MyText {
+      text: menuItemRoot.text
+      fontSize: sizes.text.sm
+      color: hoverHandler.hovered ? theme.accentForeground : theme.popoverForeground
+    }
+
+    HoverHandler {
+      id: hoverHandler
+    }
+
+    TapHandler {
+      onTapped: menuItemRoot.clicked()
+    }
+  }
+
+  component Separator: Item {
+    Layout.fillWidth: true
+    Layout.leftMargin: -4
+    Layout.rightMargin: -4
+
+    height: 9
+
+    Rectangle {
+      anchors.left: parent.left
+      anchors.right: parent.right
+      anchors.verticalCenter: parent.verticalCenter
+      height: 1
+      color: theme.border
     }
   }
 }

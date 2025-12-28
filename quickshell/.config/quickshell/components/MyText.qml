@@ -1,8 +1,8 @@
 import QtQuick
 
 Text {
-  property var fontSize: 14
-  property var fontWeight: 400
+  property var fontSize: sizes.text.base
+  property var fontWeight: sizes.font.normal
 
   font.family: interFont.name
   font.pixelSize: fontSize

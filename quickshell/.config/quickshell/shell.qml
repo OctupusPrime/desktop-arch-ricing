@@ -6,7 +6,8 @@ import qs.common
 import qs.modules
 
 ShellRoot {
-  Appearance { id: theme }
+  Sizes { id: sizes }
+  Theme { id: theme }
 
   FontLoader {
     id: interFont
@@ -28,11 +29,11 @@ ShellRoot {
           right: true
         }
 
-        implicitHeight: theme.shellHeight
+        implicitHeight: sizes.shellHeight
         color: theme.background
 
         RowLayout {
-          spacing: 22
+          spacing: 20
 
           anchors {
             verticalCenter: parent.verticalCenter
@@ -40,14 +41,11 @@ ShellRoot {
             leftMargin: 20
           }
 
-          CopilotModule {
-            dialogWidth: 600
-            dialogHeight: screen.height - theme.shellHeight - (theme.hyprlandGaps * 2)
-          }
+          CopilotModule {}
         }
 
         RowLayout {
-          spacing: 22
+          spacing: 20
           
           anchors {
             verticalCenter: parent.verticalCenter

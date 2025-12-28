@@ -81,12 +81,12 @@ Item {
 
         rect: {
           var triggerPos = menuRoot.mapToItem(panel.contentItem, 0, 0);
-          return Qt.rect(triggerPos.x, 9, menuRoot.width, 0);
+          return Qt.rect(triggerPos.x, 12, menuRoot.width, 0); // 12p[x offset is offset for Hyprland panel
         }
       }
 
-      implicitWidth: contentRect.implicitWidth + 40 // Without this +40, to display shadows properly
-      implicitHeight: contentRect.implicitHeight + 40
+      implicitWidth: contentRect.implicitWidth + 42 // Without this +42, to display shadows properly
+      implicitHeight: contentRect.implicitHeight + 42
       color: "transparent"
 
       Rectangle {
@@ -96,7 +96,7 @@ Item {
         implicitWidth: menuRoot._content ? menuRoot._content.implicitWidth : 100
         implicitHeight: menuRoot._content ? menuRoot._content.implicitHeight : 100
         color: theme.popover
-        radius: 8
+        radius: sizes.rounded.md
         border.color: theme.border
         border.width: 1
 

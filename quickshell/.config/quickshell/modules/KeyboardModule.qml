@@ -5,6 +5,6 @@ import qs.components
 
 MyText {
   text: HyprlandService.keyboardLang
-  fontSize: 14
-  fontWeight: 600
+  fontSize: sizes.text.sm
+  fontWeight: sizes.font.semibold
 }

@@ -5,7 +5,7 @@ import QtQuick.Layouts
 import qs.components
 
 Item {
-  width: 134
+  width: 108
   height: 24
 
   property var workspaceIcons: ({
@@ -28,7 +28,7 @@ Item {
     RowLayout {
       spacing: 8
 
-      Layout.preferredWidth: activeWorkspace === 2 || activeWorkspace === 3 ? 98 : 28
+      Layout.preferredWidth: activeWorkspace === 2 || activeWorkspace === 3 ? 76 : 24
 
       Behavior on Layout.preferredWidth {
         NumberAnimation {
@@ -63,12 +63,12 @@ Item {
   component WorkspaceRect: Rectangle {
     property bool active: false;
 
-    height: 10
-    radius: 5
+    height: 8
+    radius: sizes.rounded.full
     color: theme.foreground
     
     Layout.fillWidth: true
-    Layout.preferredWidth: active ? 80 : 10
+    Layout.preferredWidth: active ? 60 : 8
 
     Behavior on Layout.preferredWidth {
       NumberAnimation {

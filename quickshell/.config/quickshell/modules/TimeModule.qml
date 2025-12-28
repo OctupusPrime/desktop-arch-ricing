@@ -8,19 +8,19 @@ RowLayout {
   spacing: 6
 
   ColumnLayout {
-    spacing: 2
+    spacing: 0
 
     MyText {
       text: DateTimeService.time
-      fontSize: 14
-      fontWeight: 600
+      fontWeight: sizes.font.semibold
 
       Layout.alignment: Qt.AlignRight
     }
 
     MyText {
       text: DateTimeService.date
-      fontSize: 12
+      fontSize: sizes.text.xs
+      fontWeight: sizes.font.medium
       color: theme.mutedForeground
 
       Layout.alignment: Qt.AlignRight
