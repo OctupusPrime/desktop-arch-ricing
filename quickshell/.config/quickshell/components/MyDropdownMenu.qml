@@ -1,7 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Widgets
 import QtQuick
+import QtQuick.Effects
 
 Item {
   id: menuRoot
@@ -75,22 +75,40 @@ Item {
       visible: true
 
       anchor {
-        item: triggerContainer
-        edges: Edges.Top
+        window: panel
+        edges: Edges.Bottom
         gravity: Edges.Top
+
+        rect: {
+          var triggerPos = menuRoot.mapToItem(panel.contentItem, 0, 0);
+          return Qt.rect(triggerPos.x, 9, menuRoot.width, 0);
+        }
       }
 
-      implicitWidth: contentRect.implicitWidth + 2 // Without this +2, a 1px border appears on the right and bottom
-      implicitHeight: contentRect.implicitHeight + 2
+      implicitWidth: contentRect.implicitWidth + 40 // Without this +40, to display shadows properly
+      implicitHeight: contentRect.implicitHeight + 40
       color: "transparent"
 
-      ClippingRectangle {
+      Rectangle {
         id: contentRect
+        anchors.centerIn: parent
 
         implicitWidth: menuRoot._content ? menuRoot._content.implicitWidth : 100
         implicitHeight: menuRoot._content ? menuRoot._content.implicitHeight : 100
-        color: "white"
-        radius: 10
+        color: theme.popover
+        radius: 8
+        border.color: theme.border
+        border.width: 1
+
+        layer.enabled: true
+        layer.effect: MultiEffect {
+          shadowEnabled: true
+          shadowColor: "black"
+          shadowBlur: 1 
+          shadowOpacity: 0.3 
+          shadowVerticalOffset: 4
+          shadowHorizontalOffset: 0
+        }
 
         transformOrigin: Item.Bottom
         opacity: 0

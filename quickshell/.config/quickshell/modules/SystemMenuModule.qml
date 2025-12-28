@@ -16,14 +16,19 @@ MyDropdownMenu {
   MyDropdownMenu.Content {
     ColumnLayout {
       Text {
-        text: "System menu"
+        text: "00000000000000000000000000000000000 "
       }
-
-      Button {
-        text: "Close"
-        onClicked: {
-          systemMenuRoot.close();
-        }
+      Text {
+        text: "00000000000000000000000000000000000 "
+      }
+            Text {
+        text: "00000000000000000000000000000000000 "
+      }
+            Text {
+        text: "00000000000000000000000000000000000 "
+      }
+            Text {
+        text: "00000000000000000000000000000000000 "
       }
     }
   }
