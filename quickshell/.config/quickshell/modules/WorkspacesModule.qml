@@ -16,7 +16,7 @@ Item {
     12: "root:/assets/icons/gamepad-2.svg" // steam
   })
 
-  readonly property int activeId: Hyprland.focusedWorkspace?.id ?? 0
+  readonly property int activeId: Hyprland.focusedWorkspace?.id ?? 1
   readonly property bool hasIcon: activeId in workspaceIcons
 
   RowLayout {
