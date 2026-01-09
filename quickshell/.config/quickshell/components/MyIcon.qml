@@ -2,24 +2,23 @@ import QtQuick
 import QtQuick.Effects
 
 Item {
+  id: iconRoot
+
+  required property var source
   property var size: 24
-  property var source: undefined
   property color color: theme.foreground
 
   width: size
   height: size
 
   Image {
-    id: iconImage
     anchors.fill: parent
-    source: parent.source
-    visible: false
-  }
+    source: iconRoot.source
 
-  MultiEffect {
-    source: iconImage
-    anchors.fill: iconImage
-    colorization: 1.0
-    colorizationColor: parent.color
+    layer.enabled: true
+    layer.effect: MultiEffect {
+      colorization: 1
+      colorizationColor: iconRoot.color
+    }
   }
 }

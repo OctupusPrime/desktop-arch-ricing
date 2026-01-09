@@ -5,6 +5,8 @@ import Quickshell.Io
 import QtQuick
 
 Singleton {
+  id: systemService
+
   Process {
     id: systemProcess
   }

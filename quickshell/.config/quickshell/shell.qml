@@ -6,13 +6,14 @@ import qs.common
 import qs.modules
 
 ShellRoot {
-  Sizes { id: sizes }
-  Theme { id: theme }
-
   FontLoader {
     id: interFont
     source: "root:/assets/fonts/Inter.ttf"
   }
+  
+  Sizes { id: sizes }
+  Theme { id: theme }
+  Config { id: config }
 
   Variants {
     model: Quickshell.screens;
@@ -21,7 +22,6 @@ ShellRoot {
       PanelWindow {
         id: panel
         required property var modelData
-        screen: modelData
 
         anchors {
           bottom: true
@@ -56,7 +56,7 @@ ShellRoot {
 
           WorkspacesModule {}
 
-          DBusMenuModule {}
+          AppsTrayModule {}
         }
 
         RowLayout {

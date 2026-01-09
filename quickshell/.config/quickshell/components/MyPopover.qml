@@ -1,32 +1,33 @@
 import Quickshell
 import Quickshell.Hyprland
 import QtQuick
-import QtQuick.Effects
 
 Item {
-  id: menuRoot
+  id: popoverRoot
+
+  property bool showBackground: true;
   property bool opened: false;
   property bool _isExiting: false;
 
+  signal terminated()
+
   function open() {
-    menuRoot.opened = true;
+    popoverRoot.opened = true;
   }
 
   function close() {
-    menuRoot._isExiting = true;
+    popoverRoot._isExiting = true;
   }
 
   function toggle() {
-    if (menuRoot.opened) {
-      menuRoot.close();
-    } else {
-      menuRoot.open();
-    }
+    if (popoverRoot.opened) popoverRoot.close();
+    else popoverRoot.open();
   }
 
   function terminate() {
-    menuRoot.opened = false;
-    menuRoot._isExiting = false;
+    popoverRoot.opened = false;
+    popoverRoot._isExiting = false;
+    popoverRoot.terminated();
   }
 
   component Trigger: Item {
@@ -37,8 +38,24 @@ Item {
     implicitWidth: childrenRect.width
     implicitHeight: childrenRect.height
   }
+  component Background: BorderImage {
+    anchors { fill: parent; margins: -40 }
+    border { left: 60; top: 60; right: 60; bottom: 60 }
 
-  default property list<Item> _items
+    source: "root:/assets/images/popover-shadow.png"
+
+    Rectangle {
+      anchors { fill: parent; margins: 40 }
+
+      color: theme.popover
+      radius: sizes.rounded.md
+      border.color: theme.border
+      border.width: 1
+    }
+  }
+
+
+  default property list<QtObject> _items
   property Trigger _trigger: null
   property Content _content: null
 
@@ -57,11 +74,11 @@ Item {
     anchors.fill: parent
 
     TapHandler {
-      onTapped: menuRoot.open();
+      onTapped: popoverRoot.open();
     }
 
     Binding {
-      target: menuRoot._trigger
+      target: popoverRoot._trigger
       property: "parent"
       value: triggerContainer
     }
@@ -69,7 +86,7 @@ Item {
 
   LazyLoader {
     id: popupLoader
-    active: menuRoot.opened
+    active: popoverRoot.opened
 
     PopupWindow {
       visible: true
@@ -80,35 +97,22 @@ Item {
         gravity: Edges.Top
 
         rect: {
-          var triggerPos = menuRoot.mapToItem(panel.contentItem, 0, 0);
-          return Qt.rect(triggerPos.x, 12, menuRoot.width, 0); // 12p[x offset is offset for Hyprland panel
+          var { x } = popoverRoot.mapToItem(panel.contentItem, 0, 0);
+          return Qt.rect(x, 0, popoverRoot.width, 0);
         }
       }
 
-      implicitWidth: contentRect.implicitWidth + 42 // Without this +42, to display shadows properly
-      implicitHeight: contentRect.implicitHeight + 42
+      // Offsets of shadow
+      implicitWidth: contentContainer.implicitWidth + 40
+      implicitHeight: contentContainer.implicitHeight + 18
       color: "transparent"
 
-      Rectangle {
-        id: contentRect
+      Item {
+        id: contentContainer
         anchors.centerIn: parent
 
-        implicitWidth: menuRoot._content ? menuRoot._content.implicitWidth : 100
-        implicitHeight: menuRoot._content ? menuRoot._content.implicitHeight : 100
-        color: theme.popover
-        radius: sizes.rounded.md
-        border.color: theme.border
-        border.width: 1
-
-        layer.enabled: true
-        layer.effect: MultiEffect {
-          shadowEnabled: true
-          shadowColor: "black"
-          shadowBlur: 1 
-          shadowOpacity: 0.3 
-          shadowVerticalOffset: 4
-          shadowHorizontalOffset: 0
-        }
+        implicitWidth: popoverRoot._content ? popoverRoot._content.implicitWidth : 100
+        implicitHeight: popoverRoot._content ? popoverRoot._content.implicitHeight : 100
 
         transformOrigin: Item.Bottom
         opacity: 0
@@ -117,19 +121,23 @@ Item {
         states: [
           State {
             name: "visible"
-            when: menuRoot.opened && !menuRoot._isExiting
-            PropertyChanges { target: contentRect; opacity: 1; scale: 1.0 }
+            when: popoverRoot.opened && !popoverRoot._isExiting
+            PropertyChanges {
+              contentContainer { opacity: 1; scale: 1 }
+            }
           },
           State {
             name: "hidden"
-            when: menuRoot._isExiting
-            PropertyChanges { target: contentRect; opacity: 0; scale: 0.95 }
+            when: popoverRoot._isExiting
+            PropertyChanges {
+              contentContainer { opacity: 0; scale: 0.95 }
+            }
           }
         ]
 
         transitions: [
           Transition {
-            from: ""; to: "visible" // On Entry
+            from: "*"; to: "visible" // On Entry
             ParallelAnimation {
               NumberAnimation { property: "opacity"; duration: 200 }
               NumberAnimation { property: "scale"; duration: 250; easing.type: Easing.OutBack }
@@ -144,16 +152,20 @@ Item {
               }
               NumberAnimation { duration: 100 } // Pause to ensure smoothness
               ScriptAction { 
-                script: menuRoot.terminate();
+                script: popoverRoot.terminate();
               }
             }
           }
         ]
 
+        Background {
+          visible: popoverRoot.showBackground
+        }
+
         Binding {
-          target: menuRoot._content
+          target: popoverRoot._content
           property: "parent"
-          value: contentRect
+          value: contentContainer
         }
       }
     }
@@ -161,7 +173,7 @@ Item {
 
   HyprlandFocusGrab {
     windows: [popupLoader.item]
-    active: menuRoot.opened && !menuRoot._isExiting
-    onCleared: menuRoot.close();
+    active: popoverRoot.opened && !popoverRoot._isExiting
+    onCleared: popoverRoot.close();
   }
 }

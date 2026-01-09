@@ -6,6 +6,8 @@ import Quickshell.Hyprland
 import QtQuick
 
 Singleton {
+  id: hyprlandService
+
   property string keyboardLang: "UNK"
   property bool copilotCliOpened: false 
   property string copilotCliWindowId: ""
@@ -33,24 +35,24 @@ Singleton {
             const [, klayout] = eventValue.split(",");
 
             if (!klayout)
-              keyboardLang = "UNK";
+              hyprlandService.keyboardLang = "UNK";
             else
-              keyboardLang = klayout.substring(0, 3).toUpperCase();
+              hyprlandService.keyboardLang = klayout.substring(0, 3).toUpperCase();
           break;
           case "openwindow":
             const [openWindowId,, openWindowClass] = eventValue.split(",");
 
             if (openWindowClass === "copilot-cli") {
-              copilotCliWindowId = openWindowId;
-              copilotCliOpened = true;
+              hyprlandService.copilotCliWindowId = openWindowId;
+              hyprlandService.copilotCliOpened = true;
             }
           break;
           case "closewindow":
             const closeWindowId = eventValue;
 
-            if (closeWindowId === copilotCliWindowId) {
-              copilotCliWindowId = "";
-              copilotCliOpened = false;
+            if (closeWindowId === hyprlandService.copilotCliWindowId) {
+              hyprlandService.copilotCliWindowId = "";
+              hyprlandService.copilotCliOpened = false;
             }
           break;
         }
@@ -72,9 +74,9 @@ Singleton {
           const [, klayout] = block.match(/active keymap:\s*([^\n]+)/);
 
           if (!klayout)
-            keyboardLang = "UNK";
+            hyprlandService.keyboardLang = "UNK";
           else
-            keyboardLang = klayout.substring(0, 3).toUpperCase();
+            hyprlandService.keyboardLang = klayout.substring(0, 3).toUpperCase();
 
           break;
         }

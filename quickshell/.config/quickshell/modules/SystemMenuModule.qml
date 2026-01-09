@@ -7,7 +7,7 @@ import qs.singletons
 import qs.components
 
 MyPopover {
-  id: systemMenuRoot
+  id: systemMenuModuleRoot
 
   MyPopover.Trigger {
     MyIcon {

@@ -1,6 +1,8 @@
 import QtQuick
 
 QtObject {
+  id: sizesRoot
+
   readonly property int shellHeight: 44
   readonly property int hyprlOffset: 8
 

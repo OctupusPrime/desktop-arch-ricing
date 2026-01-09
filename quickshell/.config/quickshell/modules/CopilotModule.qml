@@ -5,6 +5,8 @@ import qs.singletons
 import qs.components
 
 Item {
+  id: copilotModuleRoot
+
   width: 24
   height: 24
 
@@ -28,7 +30,7 @@ Item {
           x: sizes.hyprlOffset, 
           y: sizes.hyprlOffset, 
           width: 600, 
-          height: screen.height - panel.height - (sizes.hyprlOffset * 2)
+          height: Screen.height - panel.height - (sizes.hyprlOffset * 2)
         });
       }
     }

@@ -4,6 +4,8 @@ import Quickshell
 import QtQuick
 
 Singleton {
+  id: dateTimeService
+
   readonly property string time: {
     Qt.formatTime(clock.date, "HH:mm")
   }

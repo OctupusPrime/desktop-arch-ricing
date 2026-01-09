@@ -5,11 +5,13 @@ import qs.singletons
 import qs.components
 
 RowLayout {
+  id: timeModuleRoot
+
   spacing: 6
 
   ColumnLayout {
     spacing: 0
-
+    
     MyText {
       text: DateTimeService.time
       fontWeight: sizes.font.semibold

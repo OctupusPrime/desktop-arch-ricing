@@ -1,6 +1,8 @@
 import QtQuick
 
 Text {
+  id: textRoot
+
   property var fontSize: sizes.text.base
   property var fontWeight: sizes.font.normal
 
