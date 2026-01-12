@@ -147,12 +147,6 @@ cd yay
 makepkg -si
 ```
 
-I also deleted the cloned folder after installation with:
-
-```bash
-rm -rf ./yay
-```
-
 ## Third-party apps
 
 ### Openrazer

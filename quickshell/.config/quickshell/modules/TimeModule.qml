@@ -13,14 +13,14 @@ RowLayout {
     spacing: 0
     
     MyText {
-      text: DateTimeService.time
+      text: SystemService.time
       fontWeight: sizes.font.semibold
 
       Layout.alignment: Qt.AlignRight
     }
 
     MyText {
-      text: DateTimeService.date
+      text: SystemService.date
       fontSize: sizes.text.xs
       fontWeight: sizes.font.medium
       color: theme.mutedForeground

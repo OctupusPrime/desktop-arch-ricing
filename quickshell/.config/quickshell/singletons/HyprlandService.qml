@@ -13,7 +13,7 @@ Singleton {
   property string copilotCliWindowId: ""
 
   function openCopilotCli({x, y, width, height}) {
-    Hyprland.dispatch(`exec [float; pin; move ${x} ${y}; size ${width} ${height}; animation slide left; opacity 0.9] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`);
+    Hyprland.dispatch(`exec [move ${x} ${y}; size ${width} ${height};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`);
     // Positions the cusor to bottom left of the terminal
     Hyprland.dispatch(`movecursor ${x + 20} ${y + height - 20}`)
   }
