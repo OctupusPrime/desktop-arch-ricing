@@ -40,7 +40,8 @@ output = {
   "frames": frames
 }
 
-effect_path = os.path.join(os.path.dirname(__file__), '.', 'openrazer', '.config', 'polychromatic', 'effects', 'Wave.json')
+dotfiles_dir = os.path.join(os.path.expanduser("~"), "dotfiles")
+effect_path = os.path.join(dotfiles_dir, 'openrazer', '.config', 'polychromatic', 'effects', 'Wave.json')
 effect_path = os.path.abspath(effect_path)
 
 with open(effect_path, "w") as f:
