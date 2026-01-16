@@ -11,7 +11,6 @@ import (
 const (
 	D2R = math.Pi / 180.0
 	R2D = 180.0 / math.Pi
-	Zenith = 90.8333
 )
 
 func main() {
@@ -48,6 +47,14 @@ func main() {
 }
 
 func calculateSolarEvent(date time.Time, lat, lng float64, isSunrise bool) time.Time {
+	// official zenith for sunrise / civil twilight for sunset
+	var Zenith float64
+	if isSunrise {
+			Zenith = 90.8333
+	} else {
+		Zenith = 96.0
+	}
+
 	// 1. Calculate the day of the year (N)
 	N := float64(date.YearDay())
 

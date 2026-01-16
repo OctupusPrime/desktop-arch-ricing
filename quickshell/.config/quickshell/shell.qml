@@ -38,7 +38,7 @@ ShellRoot {
           anchors {
             verticalCenter: parent.verticalCenter
             left: parent.left
-            leftMargin: 20
+            leftMargin: 14
           }
 
           CopilotModule {}

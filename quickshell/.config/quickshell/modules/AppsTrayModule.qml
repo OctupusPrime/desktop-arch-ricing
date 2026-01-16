@@ -34,7 +34,7 @@ MyPopover {
       StackView {
         id: trayMenuStackView
 
-        width: 188
+        width: 184
         implicitHeight: appsTrayModuleRoot.maxHeight
 
         MouseArea {
