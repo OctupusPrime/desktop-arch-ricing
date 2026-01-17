@@ -44,8 +44,8 @@ Item {
           mutedForeground: "#737373"
           accent: "#f5f5f5"
           accentForeground: "#171717"
-          destructive: "#82181a"
-          destructiveForeground: "#fb2c36"
+          destructive: "#e40014"
+          destructiveForeground: "#fcf3f3"
           border: "#e5e5e5"
           input: "#e5e5e5"
           ring: "#a1a1a1"
@@ -68,13 +68,13 @@ Item {
           secondaryForeground: "#fafafa"
           muted: "#262626"
           mutedForeground: "#a1a1a1"
-          accent: "#262626"
+          accent: "#404040"
           accentForeground: "#fafafa"
-          destructive: "#82181a"
-          destructiveForeground: "#fb2c36"
+          destructive: "#ff6568"
+          destructiveForeground: "#df2225"
           border: "#262626"
           input: "#262626"
-          ring: "#525252"
+          ring: "#737373"
         }
       }
     }
