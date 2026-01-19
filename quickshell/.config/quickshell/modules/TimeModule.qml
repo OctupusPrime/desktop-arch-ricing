@@ -8,7 +8,7 @@ RowLayout {
   id: timeModuleRoot
 
   spacing: 6
-
+  
   ColumnLayout {
     spacing: 0
     

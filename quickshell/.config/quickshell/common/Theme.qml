@@ -1,5 +1,7 @@
 import QtQuick
 
+import qs.singletons
+
 Item {
   id: themeRoot
 
@@ -23,7 +25,7 @@ Item {
   property color input
   property color ring
 
-  state: "light"
+  state: SystemService.theme
 
   states: [
     State {
@@ -79,9 +81,4 @@ Item {
       }
     }
   ]
-
-  transitions: Transition {
-    from: "*"; to: "*"
-    ColorAnimation { duration: 250; easing.type: Easing.InOutQuad }
-  }
 }

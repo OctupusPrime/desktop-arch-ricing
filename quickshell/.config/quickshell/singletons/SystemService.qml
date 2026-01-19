@@ -3,10 +3,17 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import QtCore
 import QtPositioning
 
 Singleton {
   id: systemService
+
+  readonly property string scriptsDir: Quickshell.env("HOME") + "/.config/scripts/"
+
+  Process {
+    id: systemProc
+  }
 
   readonly property string time: {
     Qt.formatTime(systemClock.date, "HH:mm")
@@ -15,15 +22,110 @@ Singleton {
     Qt.formatDate(systemClock.date, "dd/MM/yyyy")
   }
 
-  property QtObject geolocation: QtObject {
-    property double lat: 0.0
-    property double lon: 0.0
-    property bool ready: false
+  property QtObject geo: QtObject {
+    id: geoObject
+    property double lat: -1
+    property double lon: -1
   }
 
-  SystemClock {
-    id: systemClock
-    precision: SystemClock.Minutes
+  property string timezone: "UTC"
+
+  property QtObject solar: QtObject {
+    id: solarObject
+    property int sunrise: 480  // Default to 8:00
+    property int sunset: 1080  // Default to 18:00
+  }
+
+  property string appearance: "system" // "light" | "system" | "dark"
+
+  property string theme: {
+    if (systemService.appearance === "system") {
+      const totalMinutes = systemClock.date.getHours() * 60 + systemClock.date.getMinutes();
+      const isDaytime = totalMinutes >= systemService.solar.sunrise && totalMinutes < systemService.solar.sunset;  
+
+      return isDaytime ? "light" : "dark"
+    }
+
+    return systemService.appearance
+  }
+
+  onThemeChanged: {
+    systemProc.exec({
+      command: [
+        systemService.scriptsDir + "change-color-theme.sh",
+        theme
+      ]
+    })
+  }
+
+  Settings {
+    category: "System"
+
+    property alias latitude: geoObject.lat
+    property alias longitude: geoObject.lon
+
+    property alias timezone: systemService.timezone
+
+    property alias sunrise: solarObject.sunrise
+    property alias sunset: solarObject.sunset
+
+    property alias appearance: systemService.appearance
+  }
+
+  Process {
+    id: changeTimezoneProc
+    stdout: StdioCollector {
+      onStreamFinished: () => {
+        systemClock.refresh();
+      }
+    }
+  }
+
+  Process {
+    id: solarLookupProc
+    stdout: StdioCollector {
+      onStreamFinished: () => {
+        const [sunriseStr, sunsetStr] = text.trim().split(" ");
+
+        if (!sunriseStr || !sunsetStr) return;
+
+        const [sunriseH, sunriseM] = sunriseStr.split(":").map(s => parseInt(s));
+        const [sunsetH, sunsetM] = sunsetStr.split(":").map(s => parseInt(s));
+
+        systemService.solar.sunrise = sunriseH * 60 + sunriseM;
+        systemService.solar.sunset = sunsetH * 60 + sunsetM;
+      }
+    }
+  }
+
+  Process {
+    id: timezoneLookupProc
+    stdout: StdioCollector {
+      onStreamFinished: () => {
+        const timezoneStr = text.trim();
+
+        if (!timezoneStr) return;
+
+        systemService.timezone = timezoneStr;
+
+        solarLookupProc.exec({
+          command: [
+            systemService.scriptsDir + "solar-lookup/build",
+            "--lat", systemService.geo.lat,
+            "--lng", systemService.geo.lon,
+            "--tz", systemService.timezone,
+            "--date", Qt.formatDate(systemClock.date, "dd/MM/yyyy")
+          ]
+        })
+
+        changeTimezoneProc.exec({
+          command: [
+            systemService.scriptsDir + "change-timezone.sh",
+            timezoneStr
+          ]
+        })
+      }
+    }
   }
 
   PositionSource {
@@ -37,26 +139,45 @@ Singleton {
         return;
       }
 
-      systemService.geolocation.lat = coord.latitude;
-      systemService.geolocation.lon = coord.longitude;
-      systemService.geolocation.ready = true;
+      // No change in location
+      if (systemService.geo.lat === coord.latitude &&
+          systemService.geo.lon === coord.longitude) {
+        return; 
+      }
+
+      systemService.geo.lat = coord.latitude;
+      systemService.geo.lon = coord.longitude;
+
+      timezoneLookupProc.exec({
+        command: [
+          locationService.scriptsDir + "tz-lookup/build",
+          "--lat", coord.latitude,
+          "--lng", coord.longitude
+        ]
+      })
+    }
+  }
+  
+  SystemClock {
+    id: systemClock
+    precision: SystemClock.Minutes
+
+    function refresh() {
+      precision = SystemClock.Seconds;
+      precision = SystemClock.Minutes;
     }
   }
 
-  Process {
-    id: systemProcess
-  }
-
   function shutdown() {
-    systemProcess.exec(["sh", "-c", "systemctl poweroff"]);
+    systemProc.exec(["sh", "-c", "systemctl poweroff"]);
   }
 
   function restart() {
-    systemProcess.exec(["sh", "-c", "systemctl reboot"]);
+    systemProc.exec(["sh", "-c", "systemctl reboot"]);
   }
 
   function sleep() {
-    systemProcess.exec(["sh", "-c", "systemctl suspend"]);
+    systemProc.exec(["sh", "-c", "systemctl suspend"]);
   }
 
   Component.onCompleted: {

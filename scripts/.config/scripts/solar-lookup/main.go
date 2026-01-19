@@ -16,8 +16,8 @@ const (
 func main() {
 	lng := flag.Float64("lng", 0.0, "Longitude (decimal degrees)")
 	lat := flag.Float64("lat", 0.0, "Latitude (decimal degrees)")
-	dateStr := flag.String("date", "", "Date in dd.mm.yyyy format")
-	tzName := flag.String("timezone", "UTC", "Timezone name (e.g., Asia/Shanghai)")
+	dateStr := flag.String("date", "", "Date in dd/mm/yyyy format")
+	tzName := flag.String("tz", "UTC", "Timezone name (e.g., Asia/Shanghai)")
 	flag.Parse()
 
 	if *dateStr == "" {
@@ -25,7 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	t, err := time.Parse("02.01.2006", *dateStr)
+	t, err := time.Parse("02/01/2006", *dateStr)
 	if err != nil {
 		fmt.Printf("Error parsing date: %v\n", err)
 		os.Exit(1)

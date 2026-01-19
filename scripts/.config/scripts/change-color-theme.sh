@@ -1,14 +1,25 @@
 #!/bin/bash
 
 # --- Usage ---
-# ./theme_toggle.sh light
-# ./theme_toggle.sh dark
+# ./change-color-theme.sh light
+# ./change-color-theme.sh dark
 
 MODE=$1
 
 if [[ "$MODE" != "light" && "$MODE" != "dark" ]]; then
     echo "Error: Argument must be 'light' or 'dark'"
     exit 1
+fi
+
+# Check if already in desired mode
+CURRENT_SCHEME=$(gsettings get org.gnome.desktop.interface color-scheme)
+
+if [[ "$MODE" == "light" && "$CURRENT_SCHEME" == "'prefer-light'" ]]; then
+    echo "Already in Light mode."
+    exit 0
+elif [[ "$MODE" == "dark" && "$CURRENT_SCHEME" == "'prefer-dark'" ]]; then
+    echo "Already in Dark mode."
+    exit 0
 fi
 
 # GTK Theme
@@ -21,8 +32,9 @@ QT_LIGHT="/usr/share/color-schemes/BreezeLight.colors"
 QT_DARK="/usr/share/color-schemes/BreezeDark.colors"
 
 # Background image
-BACKGROUND_LIGHT="$HOME/Pictures/Wallpapers/Light.png"
-BACKGROUND_DARK="$HOME/Pictures/Wallpapers/Dark.png"
+BACKGROUND_SYMLINK="$HOME/Pictures/Wallpapers/current_wallpaper"
+BACKGROUND_LIGHT="$HOME/Pictures/Wallpapers/light.png"
+BACKGROUND_DARK="$HOME/Pictures/Wallpapers/dark.png"
 
 # Function to update qt5ct and qt6ct config files
 update_qt_config() {
@@ -30,8 +42,6 @@ update_qt_config() {
     
     for CONF in "$HOME/.config/qt5ct/qt5ct.conf" "$HOME/.config/qt6ct/qt6ct.conf"; do
         if [ -f "$CONF" ]; then
-            echo "Updating $CONF..."
-            # Use | as delimiter for sed because paths contain /
             sed -i "s|^color_scheme_path=.*|color_scheme_path=$SCHEME_PATH|" "$CONF"
             sed -i "s|^custom_palette=.*|custom_palette=true|" "$CONF"
             sed -i "s|^style=.*|style=$QT_STYLE|" "$CONF"
@@ -51,6 +61,7 @@ if [ "$MODE" == "light" ]; then
 
     # --- Background ---
     hyprctl hyprpaper wallpaper ','"$BACKGROUND_LIGHT"',cover'
+    ln -sf "$BACKGROUND_LIGHT" "$BACKGROUND_SYMLINK"
 
 elif [ "$MODE" == "dark" ]; then
     echo "Switching to Dark Mode..."
@@ -64,6 +75,8 @@ elif [ "$MODE" == "dark" ]; then
 
     # --- Background ---
     hyprctl hyprpaper wallpaper ','"$BACKGROUND_DARK"',cover'
+    ln -sf "$BACKGROUND_DARK" "$BACKGROUND_SYMLINK"
+
 fi
 
 echo "Theme switch completed."
