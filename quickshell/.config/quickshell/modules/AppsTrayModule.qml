@@ -419,15 +419,10 @@ MyPopover {
         size: 16
       }
 
-      MyCheckbox {
-        visible: trayMenuItemRoot.buttonType === QsMenuButtonType.CheckBox
-        checked: trayMenuItemRoot.checkState === 2
-        indeterminate: trayMenuItemRoot.checkState === 1
-      }
-
-      MyRadioButton {
-        visible: trayMenuItemRoot.buttonType === QsMenuButtonType.RadioButton
-        checked: trayMenuItemRoot.checkState === 2
+      MyIcon {
+        visible: trayMenuItemRoot.buttonType !== QsMenuButtonType.None && trayMenuItemRoot.checkState > 0
+        source: "root:/assets/icons/check.svg"
+        size: 16
       }
     }
 

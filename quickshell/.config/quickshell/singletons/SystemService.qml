@@ -15,6 +15,11 @@ Singleton {
     id: systemProc
   }
 
+  SystemClock {
+    id: systemClock
+    precision: SystemClock.Minutes
+  }
+
   readonly property string time: {
     Qt.formatTime(systemClock.date, "HH:mm")
   }
@@ -29,6 +34,15 @@ Singleton {
   }
 
   property string timezone: "UTC"
+  
+  onTimezoneChanged: {
+    systemProc.exec({
+      command: [
+        systemService.scriptsDir + "change-timezone.sh",
+        timezone
+      ]
+    })
+  }
 
   property QtObject solar: QtObject {
     id: solarObject
@@ -73,15 +87,6 @@ Singleton {
   }
 
   Process {
-    id: changeTimezoneProc
-    stdout: StdioCollector {
-      onStreamFinished: () => {
-        systemClock.refresh();
-      }
-    }
-  }
-
-  Process {
     id: solarLookupProc
     stdout: StdioCollector {
       onStreamFinished: () => {
@@ -117,13 +122,6 @@ Singleton {
             "--date", Qt.formatDate(systemClock.date, "dd/MM/yyyy")
           ]
         })
-
-        changeTimezoneProc.exec({
-          command: [
-            systemService.scriptsDir + "change-timezone.sh",
-            timezoneStr
-          ]
-        })
       }
     }
   }
@@ -134,6 +132,7 @@ Singleton {
 
     onPositionChanged: {
       var coord = position.coordinate;
+
       if (!coord.isValid) {
         console.warn("Invalid coordinates received from PositionSource");
         return;
@@ -150,7 +149,7 @@ Singleton {
 
       timezoneLookupProc.exec({
         command: [
-          locationService.scriptsDir + "tz-lookup/build",
+          systemService.scriptsDir + "tz-lookup/build",
           "--lat", coord.latitude,
           "--lng", coord.longitude
         ]
@@ -158,16 +157,6 @@ Singleton {
     }
   }
   
-  SystemClock {
-    id: systemClock
-    precision: SystemClock.Minutes
-
-    function refresh() {
-      precision = SystemClock.Seconds;
-      precision = SystemClock.Minutes;
-    }
-  }
-
   function shutdown() {
     systemProc.exec(["sh", "-c", "systemctl poweroff"]);
   }
