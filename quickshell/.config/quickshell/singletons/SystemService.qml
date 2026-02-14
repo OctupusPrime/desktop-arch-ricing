@@ -36,12 +36,14 @@ Singleton {
   property string timezone: "UTC"
   
   onTimezoneChanged: {
-    systemProc.exec({
-      command: [
-        systemService.scriptsDir + "change-timezone.sh",
-        timezone
-      ]
-    })
+    Qt.callLater(() => {
+      systemProc.exec({
+        command: [
+          systemService.scriptsDir + "change-timezone.sh",
+          timezone
+        ]
+      })
+    });
   }
 
   property QtObject solar: QtObject {
@@ -64,12 +66,14 @@ Singleton {
   }
 
   onThemeChanged: {
-    systemProc.exec({
-      command: [
-        systemService.scriptsDir + "change-color-theme.sh",
-        theme
-      ]
-    })
+    Qt.callLater(() => {
+      systemProc.exec({
+        command: [
+          systemService.scriptsDir + "change-color-theme.sh",
+          theme
+        ]
+      })
+    });
   }
 
   Settings {
