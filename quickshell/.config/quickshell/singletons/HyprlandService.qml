@@ -6,85 +6,82 @@ import Quickshell.Hyprland
 import QtQuick
 
 Singleton {
-  id: hyprlandService
+    id: hyprlandService
 
-  property string keyboardLang: "UNK"
-  property bool copilotCliOpened: false 
-  property string copilotCliWindowId: ""
+    property string keyboardLang: "UNK"
+    property bool copilotCliOpened: false
+    property string copilotCliWindowId: ""
 
-  function openCopilotCli({x, y, width, height}) {
-    Hyprland.dispatch(`exec [move ${x} ${y}; size ${width} ${height};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`);
-    // Positions the cusor to bottom left of the terminal
-    Hyprland.dispatch(`movecursor ${x + 20} ${y + height - 20}`)
-  }
-
-  function closeCopilotCli() {
-    Hyprland.dispatch("closewindow class:^(copilot-cli)$");
-  }
-  
-  Socket {
-    path: Hyprland.eventSocketPath
-    connected: true
-
-    parser: SplitParser {
-      onRead: msg => {
-        const [eventName, eventValue] = msg.split(">>");
-
-        switch (eventName) {
-          case "activelayout":
-            const [, klayout] = eventValue.split(",");
-
-            if (!klayout)
-              hyprlandService.keyboardLang = "UNK";
-            else
-              hyprlandService.keyboardLang = klayout.substring(0, 3).toUpperCase();
-          break;
-          case "openwindow":
-            const [openWindowId,, openWindowClass] = eventValue.split(",");
-
-            if (openWindowClass === "copilot-cli") {
-              hyprlandService.copilotCliWindowId = openWindowId;
-              hyprlandService.copilotCliOpened = true;
-            }
-          break;
-          case "closewindow":
-            const closeWindowId = eventValue;
-
-            if (closeWindowId === hyprlandService.copilotCliWindowId) {
-              hyprlandService.copilotCliWindowId = "";
-              hyprlandService.copilotCliOpened = false;
-            }
-          break;
-        }
-      }
+    Component.onCompleted: {
+        keyboardLangProc.running = true;
     }
-  }
 
-  Process {
-    id: keyboardLangProc
-    command: ["hyprctl", "devices"]
+    function openCopilotCli(rect) {
+        const cmd = `exec [move ${rect.x} ${rect.y}; size ${rect.width} ${rect.height};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`;
 
-    stdout: StdioCollector {
-      onStreamFinished: () => {
-        const keyboardBlocks = this.text.split(/Keyboard at [^\n]+:\n/).slice(1);
-
-        for (const block of keyboardBlocks) {
-          if (!block.includes('main: yes')) continue;
-
-          const [, klayout] = block.match(/active keymap:\s*([^\n]+)/);
-
-          if (!klayout)
-            hyprlandService.keyboardLang = "UNK";
-          else
-            hyprlandService.keyboardLang = klayout.substring(0, 3).toUpperCase();
-
-          break;
-        }
-      }
+        Hyprland.dispatch(cmd);
+        Hyprland.dispatch(`movecursor ${rect.x + 20} ${rect.y + rect.height - 20}`);
     }
-  }
+    function closeCopilotCli() {
+        Hyprland.dispatch("closewindow class:^(copilot-cli)$");
+    }
 
-  Component.onCompleted: {
-    keyboardLangProc.running = true;
-  }
+    function updateKeyboardLang(layoutString) {
+        if (!layoutString) {
+            keyboardLang = "UNK";
+        } else {
+            keyboardLang = layoutString.substring(0, 3).toUpperCase();
+        }
+    }
+
+    Socket {
+        id: hyprEventSocket
+        path: Hyprland.eventSocketPath
+        connected: true
+        parser: SplitParser {
+            onRead: msg => {
+                const [eventName, eventValue] = msg.split(">>");
+
+                switch (eventName) {
+                case "activelayout":
+                    const layoutParts = eventValue.split(",");
+                    hyprlandService.updateKeyboardLang(layoutParts[1]);
+                    break;
+                case "openwindow":
+                    const [openId, , openClass] = eventValue.split(",");
+                    if (openClass === "copilot-cli") {
+                        hyprlandService.copilotCliWindowId = openId;
+                        hyprlandService.copilotCliOpened = true;
+                    }
+                    break;
+                case "closewindow":
+                    if (eventValue === hyprlandService.copilotCliWindowId) {
+                        hyprlandService.copilotCliWindowId = "";
+                        hyprlandService.copilotCliOpened = false;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    Process {
+        id: keyboardLangProc
+        command: ["hyprctl", "devices"]
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const keyboardBlocks = text.split(/Keyboard at [^\n]+:\n/).slice(1);
+
+                for (const block of keyboardBlocks) {
+                    if (!block.includes('main: yes'))
+                        continue;
+
+                    const match = block.match(/active keymap:\s*([^\n]+)/);
+                    hyprlandService.updateKeyboardLang(match ? match[1] : null);
+                    break;
+                }
+            }
+        }
+    }
 }
