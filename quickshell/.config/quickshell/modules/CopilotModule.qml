@@ -5,59 +5,56 @@ import qs.singletons
 import qs.components
 
 Item {
-  id: copilotModuleRoot
+    id: copilotModuleRoot
 
-  width: 24
-  height: 24
+    width: 24
+    height: 24
 
-  HyprlandFocusGrab {
-    id: focusGrab
-    windows: [panel]
-  }
+    HyprlandFocusGrab {
+        id: focusGrab
 
-
-  Item {
-    visible: !HyprlandService.copilotCliOpened
-    anchors.fill: parent
-
-    MyIcon {
-      source: "root:/assets/icons/copilot.svg"
+        windows: [panel]
     }
 
-    TapHandler {
-      onTapped: {
-        HyprlandService.openCopilotCli({
-          x: sizes.hyprlOffset, 
-          y: sizes.hyprlOffset, 
-          width: 600, 
-          height: Screen.height - panel.height - (sizes.hyprlOffset * 2)
-        });
-      }
-    }
-  }
+    Item {
+        visible: !HyprlandService.copilotCliOpened
+        anchors.fill: parent
 
-  Item {
-    visible: HyprlandService.copilotCliOpened
-    anchors.fill: parent
+        MyIcon {
+            source: "root:/assets/icons/copilot.svg"
+        }
 
-    MyIcon {
-      source: "root:/assets/icons/x.svg"
-    }
-
-    TapHandler {
-      onTapped: HyprlandService.closeCopilotCli()
+        TapHandler {
+            onTapped: {
+                HyprlandService.openCopilotCli({
+                    x: sizes.hyprlOffset,
+                    y: sizes.hyprlOffset,
+                    width: 600,
+                    height: Screen.height - panel.height - (sizes.hyprlOffset * 2)
+                });
+            }
+        }
     }
 
-    HoverHandler {
-      onHoveredChanged: {
-        if (!focusGrab)
-          return;
+    Item {
+        visible: HyprlandService.copilotCliOpened
+        anchors.fill: parent
 
-        if (hovered)
-          focusGrab.active = true;
-        else
-          focusGrab.active = false;
-      }
+        MyIcon {
+            source: "root:/assets/icons/x.svg"
+        }
+
+        TapHandler {
+            onTapped: HyprlandService.closeCopilotCli()
+        }
+
+        HoverHandler {
+            onHoveredChanged: {
+                if (!focusGrab)
+                    return;
+
+                focusGrab.active = hovered;
+            }
+        }
     }
-  }
 }

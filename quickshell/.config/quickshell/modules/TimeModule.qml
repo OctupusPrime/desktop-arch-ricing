@@ -5,27 +5,25 @@ import qs.singletons
 import qs.components
 
 RowLayout {
-  id: timeModuleRoot
+    id: timeModuleRoot
 
-  spacing: 6
-  
-  ColumnLayout {
-    spacing: 0
-    
-    MyText {
-      text: SystemService.time
-      fontWeight: sizes.font.semibold
+    spacing: 6
 
-      Layout.alignment: Qt.AlignRight
+    ColumnLayout {
+        spacing: 0
+
+        MyText {
+            text: SystemService.time
+            fontWeight: sizes.font.semibold
+            Layout.alignment: Qt.AlignRight
+        }
+
+        MyText {
+            text: SystemService.date
+            fontSize: sizes.text.xs
+            fontWeight: sizes.font.medium
+            color: theme.mutedForeground
+            Layout.alignment: Qt.AlignRight
+        }
     }
-
-    MyText {
-      text: SystemService.date
-      fontSize: sizes.text.xs
-      fontWeight: sizes.font.medium
-      color: theme.mutedForeground
-
-      Layout.alignment: Qt.AlignRight
-    }
-  }
 }

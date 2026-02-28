@@ -5,70 +5,73 @@ import QtQuick.Layouts
 import qs.components
 
 Item {
-  id: workspacesModuleRoot
+    id: workspacesModuleRoot
 
-  width: 108
-  height: 24
+    width: 108
+    height: 24
 
-  readonly property var workspaceIcons: ({
-    10: "root:/assets/icons/earth.svg", // browser
-    11: "root:/assets/icons/music.svg", // spotify
-    12: "root:/assets/icons/gamepad-2.svg" // steam
-  })
-
-  readonly property int activeId: Hyprland.focusedWorkspace?.id ?? 1
-  readonly property bool hasIcon: activeId in workspaceIcons
-
-  RowLayout {
-    anchors.fill: parent
-    spacing: 8
-
-    WorkspaceDot { wsId: 1 }
+    readonly property int activeId: Hyprland.focusedWorkspace?.id ?? 1
+    readonly property bool hasIcon: activeId in config.workspaces.iconSubs
 
     RowLayout {
-      spacing: 8
+        anchors.fill: parent
+        spacing: 8
 
-      Layout.fillWidth: true
-      Layout.preferredWidth: workspacesModuleRoot.activeId === 2 || workspacesModuleRoot.activeId === 3 ? 76 : 24
+        WorkspaceDot {
+            wsId: 1
+        }
 
-      WorkspaceDot { 
-        visible: !workspacesModuleRoot.hasIcon
-        wsId: 2
-      }
+        RowLayout {
+            spacing: 8
 
-      MyIcon {
-        visible: workspacesModuleRoot.hasIcon
-        source: workspacesModuleRoot.hasIcon ? workspacesModuleRoot.workspaceIcons[workspacesModuleRoot.activeId] : ""
+            Layout.preferredWidth: workspacesModuleRoot.activeId === 2 || workspacesModuleRoot.activeId === 3 ? 76 : 24
 
-        Layout.alignment: Qt.AlignHCenter
-      }
+            WorkspaceDot {
+                visible: !workspacesModuleRoot.hasIcon
+                wsId: 2
+            }
 
-      WorkspaceDot {
-        visible: !workspacesModuleRoot.hasIcon 
-        wsId: 3 
-      }
+            MyIcon {
+                visible: workspacesModuleRoot.hasIcon
+                source: workspacesModuleRoot.hasIcon ? Qt.resolvedUrl(config.workspaces.iconSubs[workspacesModuleRoot.activeId]) : ""
+                Layout.alignment: Qt.AlignHCenter
+            }
 
-      Behavior on Layout.preferredWidth {
-        NumberAnimation { duration: 150; easing.type: Easing.Linear }
-      }
+            WorkspaceDot {
+                visible: !workspacesModuleRoot.hasIcon
+                wsId: 3
+            }
+
+            Behavior on Layout.preferredWidth {
+                NumberAnimation {
+                    duration: 150
+                    easing.type: Easing.Linear
+                }
+            }
+        }
+
+        WorkspaceDot {
+            wsId: 4
+        }
     }
 
-    WorkspaceDot { wsId: 4 }
-  }
+    component WorkspaceDot: Rectangle {
+        id: workDotRoot
 
-  component WorkspaceDot: Rectangle {
-    required property int wsId
-    readonly property bool isActive: workspacesModuleRoot.activeId === wsId
+        required property int wsId
+        readonly property bool isActive: workspacesModuleRoot.activeId === wsId
 
-    height: 8
-    radius: sizes.rounded.full
-    color: theme.foreground
-    
-    Layout.fillWidth: true
-    Layout.preferredWidth: isActive ? 60 : 8
+        height: 8
+        radius: sizes.rounded.full
+        color: theme.foreground
+        Layout.fillWidth: true
+        Layout.preferredWidth: isActive ? 60 : 8
 
-    Behavior on Layout.preferredWidth {
-      NumberAnimation { duration: 150; easing.type: Easing.Linear }
+        Behavior on Layout.preferredWidth {
+            NumberAnimation {
+                duration: 150
+                easing.type: Easing.Linear
+            }
+        }
     }
-  }
 }

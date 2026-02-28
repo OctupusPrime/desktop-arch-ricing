@@ -7,104 +7,102 @@ import qs.singletons
 import qs.components
 
 MyPopover {
-  id: systemMenuModuleRoot
+    id: systemMenuModuleRoot
 
-  MyPopover.Trigger {
-    MyIcon {
-      source: "root:/assets/icons/arch.svg"
-    }
-  }
-
-  MyPopover.Content {
-    WrapperItem {
-      margin: 4
-      width: 148
-
-      ColumnLayout {
-        spacing: 0
-
-        MenuLabel {
-          text: "System"
+    MyPopover.Trigger {
+        MyIcon {
+            source: "root:/assets/icons/arch.svg"
         }
-        MenuItem {
-          text: "Sleep mode"
-          onClicked: SystemService.sleep()
+    }
+
+    MyPopover.Content {
+        WrapperItem {
+            margin: 4
+            width: 148
+
+            ColumnLayout {
+                spacing: 0
+
+                MenuLabel {
+                    text: "System"
+                }
+                MenuItem {
+                    text: "Sleep mode"
+                    onClicked: SystemService.sleep()
+                }
+                MenuItem {
+                    text: "Shutdown"
+                    onClicked: SystemService.shutdown()
+                }
+                MenuItem {
+                    text: "Restart"
+                    onClicked: SystemService.restart()
+                }
+            }
         }
-        MenuItem {
-          text: "Shutdown"
-          onClicked: SystemService.shutdown()
+    }
+
+    component MenuLabel: WrapperItem {
+        id: labelRoot
+
+        property string text: ""
+
+        topMargin: 6
+        bottomMargin: 6
+        leftMargin: 8
+        rightMargin: 8
+        Layout.fillWidth: true
+
+        MyText {
+            text: labelRoot.text
+            fontSize: sizes.text.sm
+            fontWeight: sizes.font.medium
+            color: theme.popoverForeground
         }
-        MenuItem {
-          text: "Restart"
-          onClicked: SystemService.restart()
+    }
+
+    component MenuItem: WrapperRectangle {
+        id: menuItemRoot
+
+        property string text: ""
+
+        signal clicked
+
+        color: hoverHandler.hovered ? theme.accent : "transparent"
+        radius: sizes.rounded.sm
+        topMargin: 6
+        bottomMargin: 6
+        leftMargin: 8
+        rightMargin: 8
+        Layout.fillWidth: true
+
+        MyText {
+            text: menuItemRoot.text
+            fontSize: sizes.text.sm
+            color: hoverHandler.hovered ? theme.accentForeground : theme.popoverForeground
         }
-      }
-    }
-  }
 
-  component MenuLabel: WrapperItem {
-    id: labelRoot
-    property string text: ""
+        HoverHandler {
+            id: hoverHandler
+        }
 
-    Layout.fillWidth: true
-
-    topMargin: 6
-    bottomMargin: 6
-    leftMargin: 8
-    rightMargin: 8
-
-    MyText {
-      text: labelRoot.text
-      fontSize: sizes.text.sm
-      fontWeight: sizes.font.medium
-      color: theme.popoverForeground
-    }
-  }
-
-  component MenuItem: WrapperRectangle {
-    id: menuItemRoot
-    property string text: ""
-
-    signal clicked()
-
-    Layout.fillWidth: true
-
-    topMargin: 6
-    bottomMargin: 6
-    leftMargin: 8
-    rightMargin: 8
-
-    color: hoverHandler.hovered ? theme.accent : "transparent"
-    radius: sizes.rounded.sm
-
-    MyText {
-      text: menuItemRoot.text
-      fontSize: sizes.text.sm
-      color: hoverHandler.hovered ? theme.accentForeground : theme.popoverForeground
+        TapHandler {
+            onTapped: menuItemRoot.clicked()
+        }
     }
 
-    HoverHandler {
-      id: hoverHandler
+    component Separator: Item {
+        height: 9
+        Layout.fillWidth: true
+        Layout.leftMargin: -4
+        Layout.rightMargin: -4
+
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: 1
+            color: theme.border
+        }
     }
-
-    TapHandler {
-      onTapped: menuItemRoot.clicked()
-    }
-  }
-
-  component Separator: Item {
-    Layout.fillWidth: true
-    Layout.leftMargin: -4
-    Layout.rightMargin: -4
-
-    height: 9
-
-    Rectangle {
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
-      height: 1
-      color: theme.border
-    }
-  }
 }
