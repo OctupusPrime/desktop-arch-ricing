@@ -35,8 +35,8 @@ ShellRoot {
                     right: true
                 }
 
-                implicitHeight: sizes.shellHeight
-                color: theme.background
+                implicitHeight: 44
+                color: Qt.alpha(theme.background, 0.8)
 
                 RowLayout {
                     spacing: 20

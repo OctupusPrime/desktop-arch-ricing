@@ -32,25 +32,24 @@ Item {
             name: "light"
             PropertyChanges {
                 themeRoot {
-                    background: "#bbffffff"
-                    foreground: "#0a0a0a"
-                    card: "#ffffff"
-                    cardForeground: "#0a0a0a"
-                    popover: "#ffffff"
-                    popoverForeground: "#0a0a0a"
-                    primary: "#171717"
-                    primaryForeground: "#fafafa"
-                    secondary: "#f5f5f5"
-                    secondaryForeground: "#171717"
-                    muted: "#f5f5f5"
-                    mutedForeground: "#737373"
-                    accent: "#f5f5f5"
-                    accentForeground: "#171717"
-                    destructive: "#e40014"
-                    destructiveForeground: "#fcf3f3"
-                    border: "#e5e5e5"
-                    input: "#e5e5e5"
-                    ring: "#a1a1a1"
+                    background: Qt.rgba(255 / 255, 255 / 255, 255 / 255)
+                    foreground: Qt.rgba(10 / 255, 10 / 255, 10 / 255)
+                    card: Qt.rgba(255 / 255, 255 / 255, 255 / 255)
+                    cardForeground: Qt.rgba(10 / 255, 10 / 255, 10 / 255)
+                    popover: Qt.rgba(255 / 255, 255 / 255, 255 / 255)
+                    popoverForeground: Qt.rgba(10 / 255, 10 / 255, 10 / 255)
+                    primary: Qt.rgba(23 / 255, 23 / 255, 23 / 255)
+                    primaryForeground: Qt.rgba(250 / 255, 250 / 255, 250 / 255)
+                    secondary: Qt.rgba(245 / 255, 245 / 255, 245 / 255)
+                    secondaryForeground: Qt.rgba(23 / 255, 23 / 255, 23 / 255)
+                    muted: Qt.rgba(245 / 255, 245 / 255, 245 / 255)
+                    mutedForeground: Qt.rgba(115 / 255, 115 / 255, 115 / 255)
+                    accent: Qt.rgba(245 / 255, 245 / 255, 245 / 255)
+                    accentForeground: Qt.rgba(23 / 255, 23 / 255, 23 / 255)
+                    destructive: Qt.rgba(231 / 255, 0 / 255, 11 / 255)
+                    border: Qt.rgba(229 / 255, 229 / 255, 229 / 255)
+                    input: Qt.rgba(229 / 255, 229 / 255, 229 / 255)
+                    ring: Qt.rgba(161 / 255, 161 / 255, 161 / 255)
                 }
             }
         },
@@ -58,25 +57,24 @@ Item {
             name: "dark"
             PropertyChanges {
                 themeRoot {
-                    background: '#bb0a0a0a'
-                    foreground: "#fafafa"
-                    card: "#0a0a0a"
-                    cardForeground: "#fafafa"
-                    popover: "#0a0a0a"
-                    popoverForeground: "#fafafa"
-                    primary: "#fafafa"
-                    primaryForeground: "#171717"
-                    secondary: "#262626"
-                    secondaryForeground: "#fafafa"
-                    muted: "#262626"
-                    mutedForeground: "#a1a1a1"
-                    accent: "#404040"
-                    accentForeground: "#fafafa"
-                    destructive: "#ff6568"
-                    destructiveForeground: "#df2225"
-                    border: "#262626"
-                    input: "#262626"
-                    ring: "#737373"
+                    background: Qt.rgba(10 / 255, 10 / 255, 10 / 255)
+                    foreground: Qt.rgba(250 / 255, 250 / 255, 250 / 255)
+                    card: Qt.rgba(23 / 255, 23 / 255, 23 / 255)
+                    cardForeground: Qt.rgba(250 / 255, 250 / 255, 250 / 255)
+                    popover: Qt.rgba(23 / 255, 23 / 255, 23 / 255)
+                    popoverForeground: Qt.rgba(250 / 255, 250 / 255, 250 / 255)
+                    primary: Qt.rgba(229 / 255, 229 / 255, 229 / 255)
+                    primaryForeground: Qt.rgba(23 / 255, 23 / 255, 23 / 255)
+                    secondary: Qt.rgba(38 / 255, 38 / 255, 38 / 255)
+                    secondaryForeground: Qt.rgba(250 / 255, 250 / 255, 250 / 255)
+                    muted: Qt.rgba(38 / 255, 38 / 255, 38 / 255)
+                    mutedForeground: Qt.rgba(161 / 255, 161 / 255, 161 / 255)
+                    accent: Qt.rgba(38 / 255, 38 / 255, 38 / 255)
+                    accentForeground: Qt.rgba(250 / 255, 250 / 255, 250 / 255)
+                    destructive: Qt.rgba(255 / 255, 100 / 255, 103 / 255)
+                    border: Qt.rgba(255 / 255, 255 / 255, 255 / 255, 0.1)
+                    input: Qt.rgba(255 / 255, 255 / 255, 255 / 255, 0.15)
+                    ring: Qt.rgba(115 / 255, 115 / 255, 115 / 255)
                 }
             }
         }
