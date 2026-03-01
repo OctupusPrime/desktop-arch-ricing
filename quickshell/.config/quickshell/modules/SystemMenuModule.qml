@@ -56,8 +56,8 @@ MyPopover {
         MyText {
             text: labelRoot.text
             color: theme.popoverForeground
-            font.pixelSize: sizes.text.sm
-            font.weight: sizes.font.medium
+            font.pixelSize: 14
+            font.weight: 500
         }
     }
 
@@ -69,7 +69,7 @@ MyPopover {
         signal clicked
 
         color: hoverHandler.hovered ? theme.accent : "transparent"
-        radius: sizes.rounded.sm
+        radius: 4
         topMargin: 6
         bottomMargin: 6
         leftMargin: 8
@@ -79,7 +79,7 @@ MyPopover {
         MyText {
             text: menuItemRoot.text
             color: hoverHandler.hovered ? theme.accentForeground : theme.popoverForeground
-            font.pixelSize: sizes.text.sm
+            font.pixelSize: 14
         }
 
         HoverHandler {

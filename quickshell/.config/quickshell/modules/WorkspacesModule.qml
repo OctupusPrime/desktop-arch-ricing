@@ -62,7 +62,7 @@ Item {
         readonly property bool isActive: workspacesModuleRoot.activeId === wsId
 
         height: 8
-        radius: sizes.rounded.full
+        radius: 8
         color: theme.foreground
         Layout.fillWidth: true
         Layout.preferredWidth: isActive ? 60 : 8

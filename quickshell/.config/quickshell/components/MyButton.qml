@@ -1,15 +1,16 @@
 import QtQuick
 import QtQuick.Controls
 
-// TODO mb add later focus & hover states
 AbstractButton {
     id: buttonRoot
 
     property string variant: "default" // "default" | "outline" | "ghost" | "destructive" | "secondary" | "link"
     property string size: "default" // "default" | "xs" | "sm" | "lg" | "icon" | "icon-xs" | "icon-sm" | "icon-lg"
+    property int radiusOverride: -1
     property url iconSource: ""
 
     property color _bgColor: theme.primary
+    property color _hoverBgColor: Qt.alpha(theme.primary, 0.8)
     property color _borderColor: "transparent"
     property color _contentColor: theme.primaryForeground
     property int _height: 32
@@ -27,6 +28,7 @@ AbstractButton {
                 PropertyChanges {
                     target: buttonRoot
                     _bgColor: theme.primary
+                    _hoverBgColor: Qt.alpha(theme.primary, 0.8)
                     _borderColor: "transparent"
                     _contentColor: theme.primaryForeground
                 }
@@ -36,6 +38,7 @@ AbstractButton {
                 PropertyChanges {
                     target: buttonRoot
                     _bgColor: theme.state === "dark" ? Qt.alpha(theme.input, 0.15 * 0.3) : theme.background
+                    _hoverBgColor: theme.state === "dark" ? Qt.alpha(theme.input, 0.15 * 0.5) : theme.muted
                     _borderColor: theme.state === "dark" ? theme.input : theme.border
                     _contentColor: theme.foreground
                 }
@@ -45,6 +48,7 @@ AbstractButton {
                 PropertyChanges {
                     target: buttonRoot
                     _bgColor: theme.secondary
+                    _hoverBgColor: Qt.alpha(theme.secondary, 0.8)
                     _borderColor: "transparent"
                     _contentColor: theme.secondaryForeground
                 }
@@ -54,6 +58,7 @@ AbstractButton {
                 PropertyChanges {
                     target: buttonRoot
                     _bgColor: "transparent"
+                    _hoverBgColor: theme.state === "dark" ? Qt.alpha(theme.muted, 0.5) : theme.muted
                     _borderColor: "transparent"
                     _contentColor: theme.foreground
                 }
@@ -63,6 +68,7 @@ AbstractButton {
                 PropertyChanges {
                     target: buttonRoot
                     _bgColor: theme.state === "dark" ? Qt.alpha(theme.destructive, 0.2) : Qt.alpha(theme.destructive, 0.1)
+                    _hoverBgColor: theme.state === "dark" ? Qt.alpha(theme.destructive, 0.3) : Qt.alpha(theme.destructive, 0.2)
                     _borderColor: "transparent"
                     _contentColor: theme.destructive
                 }
@@ -72,6 +78,7 @@ AbstractButton {
                 PropertyChanges {
                     target: buttonRoot
                     _bgColor: "transparent"
+                    _hoverBgColor: "transparent"
                     _borderColor: "transparent"
                     _contentColor: theme.primary
                 }
@@ -180,27 +187,33 @@ AbstractButton {
         ]
     }
 
-    hoverEnabled: false
+    hoverEnabled: true
     opacity: enabled ? 1.0 : 0.5
     implicitHeight: _height
     implicitWidth: _padding > 0 ? contentItem.implicitWidth + _padding * 2 : _height
 
     background: Rectangle {
-        color: buttonRoot._bgColor
+        color: (buttonRoot.hovered || buttonRoot.pressed) ? buttonRoot._hoverBgColor : buttonRoot._bgColor
         border.color: buttonRoot._borderColor
         border.width: 1
-        radius: buttonRoot._radius
+        radius: buttonRoot.radiusOverride >= 0 ? buttonRoot.radiusOverride : buttonRoot._radius
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 150
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 
     contentItem: Item {
-        // Pass the row's implicit size up so the button calculates its width correctly
         implicitWidth: contentRow.implicitWidth
         implicitHeight: contentRow.implicitHeight
 
         Row {
             id: contentRow
             spacing: buttonRoot._gap
-            anchors.centerIn: parent // This now centers perfectly inside the Item wrapper
+            anchors.centerIn: parent
 
             MyIcon {
                 visible: buttonRoot.iconSource.toString() !== ""
@@ -216,12 +229,9 @@ AbstractButton {
                 color: buttonRoot._contentColor
                 font.pixelSize: buttonRoot._fontSize
                 font.weight: 500
+                font.underline: buttonRoot.variant === "link" ? buttonRoot.hovered || buttonRoot.pressed : false
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
-    }
-
-    HoverHandler {
-        cursorShape: Qt.PointingHandCursor
     }
 }

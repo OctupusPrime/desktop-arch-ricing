@@ -26,7 +26,7 @@ Singleton {
         Hyprland.dispatch("closewindow class:^(copilot-cli)$");
     }
 
-    function updateKeyboardLang(layoutString) {
+    function _updateKeyboardLang(layoutString) {
         if (!layoutString) {
             keyboardLang = "UNK";
         } else {
@@ -45,7 +45,7 @@ Singleton {
                 switch (eventName) {
                 case "activelayout":
                     const layoutParts = eventValue.split(",");
-                    hyprlandService.updateKeyboardLang(layoutParts[1]);
+                    hyprlandService._updateKeyboardLang(layoutParts[1]);
                     break;
                 case "openwindow":
                     const [openId, , openClass] = eventValue.split(",");
@@ -78,7 +78,7 @@ Singleton {
                         continue;
 
                     const match = block.match(/active keymap:\s*([^\n]+)/);
-                    hyprlandService.updateKeyboardLang(match ? match[1] : null);
+                    hyprlandService._updateKeyboardLang(match ? match[1] : null);
                     break;
                 }
             }

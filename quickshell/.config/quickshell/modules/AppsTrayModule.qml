@@ -28,7 +28,7 @@ MyPopover {
 
     MyPopover.Content {
         ColumnLayout {
-            spacing: sizes.hyprlOffset
+            spacing: 8
 
             StackView {
                 id: trayMenuStackView
@@ -324,7 +324,7 @@ MyPopover {
         width: 32
         height: 32
         color: appItemHover.hovered || active ? theme.accent : "transparent"
-        radius: sizes.rounded.sm
+        radius: 4
 
         function getIconSource(id: string, pathname: string): string {
             if (id in config.tray.iconSubs) {
@@ -383,7 +383,7 @@ MyPopover {
         signal clicked
 
         color: trayMenuItemHover.hovered ? theme.accent : "transparent"
-        radius: sizes.rounded.sm
+        radius: 4
         opacity: enabled ? 1 : 0.5
         topMargin: 6
         bottomMargin: 6
@@ -397,7 +397,7 @@ MyPopover {
             MyText {
                 text: trayMenuItemRoot.text
                 color: theme.popoverForeground
-                font.pixelSize: sizes.text.sm
+                font.pixelSize: 14
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
@@ -437,7 +437,7 @@ MyPopover {
 
         Rectangle {
             anchors.fill: parent
-            radius: sizes.rounded.md
+            radius: 8
             gradient: Gradient {
                 GradientStop {
                     position: 0
@@ -456,12 +456,24 @@ MyPopover {
             onWheel: wheel.accepted = true
         }
 
-        MyButton {
-            size: "sm"
-            variant: "secondary"
-            text: "Back"
+        Rectangle {
+            id: buttonWrapper
+
+            width: backButton.width
+            height: backButton.height
+            radius: 8
+            color: theme.background
             anchors.centerIn: parent
-            onClicked: closeSubMenuButtonRoot.clicked()
+
+            MyButton {
+                id: backButton
+
+                size: "sm"
+                variant: "secondary"
+                text: "Back"
+                anchors.fill: parent
+                onClicked: closeSubMenuButtonRoot.clicked()
+            }
         }
     }
 }

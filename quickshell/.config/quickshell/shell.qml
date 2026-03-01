@@ -11,9 +11,6 @@ ShellRoot {
         source: "root:/assets/fonts/Geist.ttf"
     }
 
-    Sizes {
-        id: sizes
-    }
     Theme {
         id: theme
     }
@@ -36,7 +33,7 @@ ShellRoot {
                 }
 
                 implicitHeight: 44
-                color: Qt.alpha(theme.background, 0.8)
+                color: Qt.alpha(theme.background, 0.75)
 
                 RowLayout {
                     spacing: 20

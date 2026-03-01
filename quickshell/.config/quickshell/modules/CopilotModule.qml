@@ -27,10 +27,10 @@ Item {
         TapHandler {
             onTapped: {
                 HyprlandService.openCopilotCli({
-                    x: sizes.hyprlOffset,
-                    y: sizes.hyprlOffset,
+                    x: 8,
+                    y: 8,
                     width: 600,
-                    height: Screen.height - panel.height - (sizes.hyprlOffset * 2)
+                    height: Screen.height - panel.height - 16
                 });
             }
         }

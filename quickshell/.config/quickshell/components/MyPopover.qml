@@ -54,7 +54,7 @@ Item {
                 margins: 40
             }
             color: theme.popover
-            radius: sizes.rounded.md
+            radius: 8
             border.color: theme.border
             border.width: 1
         }
