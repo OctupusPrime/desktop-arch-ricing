@@ -55,9 +55,9 @@ MyPopover {
 
         MyText {
             text: labelRoot.text
-            fontSize: sizes.text.sm
-            fontWeight: sizes.font.medium
             color: theme.popoverForeground
+            font.pixelSize: sizes.text.sm
+            font.weight: sizes.font.medium
         }
     }
 
@@ -78,8 +78,8 @@ MyPopover {
 
         MyText {
             text: menuItemRoot.text
-            fontSize: sizes.text.sm
             color: hoverHandler.hovered ? theme.accentForeground : theme.popoverForeground
+            font.pixelSize: sizes.text.sm
         }
 
         HoverHandler {

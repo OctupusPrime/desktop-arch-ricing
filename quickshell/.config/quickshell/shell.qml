@@ -7,8 +7,8 @@ import qs.modules
 
 ShellRoot {
     FontLoader {
-        id: interFont
-        source: "root:/assets/fonts/Inter.ttf"
+        id: geistFont
+        source: "root:/assets/fonts/Geist.ttf"
     }
 
     Sizes {

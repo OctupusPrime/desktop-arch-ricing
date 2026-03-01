@@ -396,8 +396,8 @@ MyPopover {
 
             MyText {
                 text: trayMenuItemRoot.text
-                fontSize: sizes.text.sm
                 color: theme.popoverForeground
+                font.pixelSize: sizes.text.sm
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
@@ -456,31 +456,12 @@ MyPopover {
             onWheel: wheel.accepted = true
         }
 
-        Item {
-            implicitWidth: childrenRect.width
-            implicitHeight: childrenRect.height
+        MyButton {
+            size: "sm"
+            variant: "secondary"
+            text: "Back"
             anchors.centerIn: parent
-
-            MouseArea {
-                anchors.fill: parent
-
-                onClicked: closeSubMenuButtonRoot.clicked()
-            }
-
-            WrapperRectangle {
-                color: theme.secondary
-                radius: sizes.rounded.full
-                topMargin: 6
-                bottomMargin: 6
-                leftMargin: 10
-                rightMargin: 10
-
-                MyText {
-                    text: "Back"
-                    fontSize: sizes.text.sm
-                    color: theme.secondaryForeground
-                }
-            }
+            onClicked: closeSubMenuButtonRoot.clicked()
         }
     }
 }

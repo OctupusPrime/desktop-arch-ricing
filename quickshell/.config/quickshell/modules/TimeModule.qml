@@ -14,15 +14,15 @@ RowLayout {
 
         MyText {
             text: SystemService.time
-            fontWeight: sizes.font.semibold
+            font.weight: sizes.font.semibold
             Layout.alignment: Qt.AlignRight
         }
 
         MyText {
             text: SystemService.date
-            fontSize: sizes.text.xs
-            fontWeight: sizes.font.medium
             color: theme.mutedForeground
+            font.pixelSize: sizes.text.xs
+            font.weight: sizes.font.medium
             Layout.alignment: Qt.AlignRight
         }
     }
