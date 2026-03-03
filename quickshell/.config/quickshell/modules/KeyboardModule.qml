@@ -7,6 +7,6 @@ MyText {
     id: keyboardModuleRoot
 
     text: HyprlandService.keyboardLang
-    font.pixelSize: 14
-    font.weight: 600
+    fontSize: 14
+    fontWeight: 600
 }

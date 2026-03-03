@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 AbstractButton {
     id: buttonRoot
@@ -187,10 +188,12 @@ AbstractButton {
         ]
     }
 
-    hoverEnabled: true
+    leftPadding: _padding
+    rightPadding: _padding
+
+    hoverEnabled: enabled
     opacity: enabled ? 1.0 : 0.5
     implicitHeight: _height
-    implicitWidth: _padding > 0 ? contentItem.implicitWidth + _padding * 2 : _height
 
     background: Rectangle {
         color: (buttonRoot.hovered || buttonRoot.pressed) ? buttonRoot._hoverBgColor : buttonRoot._bgColor
@@ -210,7 +213,7 @@ AbstractButton {
         implicitWidth: contentRow.implicitWidth
         implicitHeight: contentRow.implicitHeight
 
-        Row {
+        RowLayout {
             id: contentRow
             spacing: buttonRoot._gap
             anchors.centerIn: parent
@@ -220,17 +223,17 @@ AbstractButton {
                 source: buttonRoot.iconSource
                 size: buttonRoot._iconSize
                 color: buttonRoot._contentColor
-                anchors.verticalCenter: parent.verticalCenter
             }
 
             MyText {
                 visible: buttonRoot.text !== ""
                 text: buttonRoot.text
                 color: buttonRoot._contentColor
-                font.pixelSize: buttonRoot._fontSize
-                font.weight: 500
+                fontSize: buttonRoot._fontSize
+                fontWeight: 500
                 font.underline: buttonRoot.variant === "link" ? buttonRoot.hovered || buttonRoot.pressed : false
-                anchors.verticalCenter: parent.verticalCenter
+                wrapMode: Text.Wrap
+                Layout.fillWidth: true
             }
         }
     }

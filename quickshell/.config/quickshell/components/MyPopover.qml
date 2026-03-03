@@ -5,11 +5,9 @@ import QtQuick
 Item {
     id: popoverRoot
 
-    property bool showBackground: true
     property bool opened: false
     property bool _isExiting: false
-
-    signal terminated
+    property bool hideContentBackground: false
 
     function open() {
         popoverRoot.opened = true;
@@ -23,10 +21,9 @@ Item {
     function terminate() {
         popoverRoot.opened = false;
         popoverRoot._isExiting = false;
-        popoverRoot.terminated();
     }
 
-    component Trigger: Item {
+    component Anchor: Item {
         implicitWidth: childrenRect.width
         implicitHeight: childrenRect.height
     }
@@ -54,27 +51,27 @@ Item {
                 margins: 40
             }
             color: theme.popover
-            radius: 8
+            radius: 10
             border.color: theme.border
             border.width: 1
         }
     }
 
     default property list<QtObject> _items
-    property Trigger _trigger: null
+    property Anchor _anchor: null
     property Content _content: null
 
     Component.onCompleted: {
         for (let i = 0; i < _items.length; i++) {
-            if (_items[i] instanceof Trigger)
-                _trigger = _items[i];
+            if (_items[i] instanceof Anchor)
+                _anchor = _items[i];
             else if (_items[i] instanceof Content)
                 _content = _items[i];
         }
     }
 
-    implicitWidth: _trigger ? _trigger.implicitWidth : 0
-    implicitHeight: _trigger ? _trigger.implicitHeight : 0
+    implicitWidth: _anchor ? _anchor.implicitWidth : 0
+    implicitHeight: _anchor ? _anchor.implicitHeight : 0
 
     Item {
         id: triggerContainer
@@ -86,7 +83,7 @@ Item {
         }
 
         Binding {
-            target: popoverRoot._trigger
+            target: popoverRoot._anchor
             property: "parent"
             value: triggerContainer
         }
@@ -101,18 +98,15 @@ Item {
             visible: true
             // Offsets of shadow
             implicitWidth: contentContainer.implicitWidth + 40
-            implicitHeight: contentContainer.implicitHeight + 18
+            implicitHeight: contentContainer.implicitHeight + 16
             color: "transparent"
             anchor {
                 window: panel
                 edges: Edges.Bottom
                 gravity: Edges.Top
-
                 rect: {
-                    var {
-                        x
-                    } = popoverRoot.mapToItem(panel.contentItem, 0, 0);
-                    return Qt.rect(x, 0, popoverRoot.width, 0);
+                    const anchorPos = popoverRoot._anchor.mapToItem(panel.contentItem, 0, 0);
+                    return Qt.rect(anchorPos.x, 0, popoverRoot._anchor.width, 0);
                 }
             }
 
@@ -191,7 +185,7 @@ Item {
                 ]
 
                 Background {
-                    visible: popoverRoot.showBackground
+                    visible: !popoverRoot.hideContentBackground
                 }
 
                 Binding {

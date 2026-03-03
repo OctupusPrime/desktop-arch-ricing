@@ -3,12 +3,16 @@ import QtQuick
 Text {
     id: textRoot
 
-    color: theme.foreground
+    property var fontSize: 16
+    property var fontWeight: 400
+
     font.family: geistFont.name
-    font.pixelSize: 16
-    font.weight: 400
+    font.pixelSize: fontSize
+    font.weight: fontWeight
+    color: theme.foreground
+
     font.variableAxes: {
-        "wght": font.weight,
-        "opsz": font.pixelSize
+        "wght": fontWeight,
+        "opsz": fontSize
     }
 }

@@ -1,6 +1,5 @@
 import Quickshell
 import Quickshell.Services.SystemTray
-import Quickshell.Widgets
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -10,17 +9,22 @@ import qs.components
 MyPopover {
     id: appsTrayModuleRoot
 
-    showBackground: false
-    property real maxHeight: Screen.height * 0.4
+    property real maxWidth: 184
+    property real maxHeight: Screen.height * 0.6
+
     property string activeAppId: ""
     property alias menuStack: trayMenuStackView
 
-    onTerminated: {
-        menuStack.clear();
-        activeAppId = "";
+    hideContentBackground: true
+    onOpenedChanged: {
+        if (appsTrayModuleRoot.opened)
+            return;
+
+        appsTrayModuleRoot.menuStack.clear();
+        appsTrayModuleRoot.activeAppId = "";
     }
 
-    MyPopover.Trigger {
+    MyPopover.Anchor {
         MyIcon {
             source: "root:/assets/icons/boxes.svg"
         }
@@ -33,7 +37,7 @@ MyPopover {
             StackView {
                 id: trayMenuStackView
 
-                width: 184
+                implicitWidth: appsTrayModuleRoot.maxWidth
                 implicitHeight: appsTrayModuleRoot.maxHeight
 
                 replaceEnter: null
@@ -78,7 +82,7 @@ MyPopover {
                             required property SystemTrayItem modelData
 
                             appId: modelData.id
-                            icon: modelData.icon
+                            iconSource: modelData.icon
                             active: appsTrayModuleRoot.activeAppId === modelData.id
 
                             onClicked: {
@@ -231,14 +235,12 @@ MyPopover {
             id: traySubMenuRoot
 
             required property QsMenuHandle handle
-            property bool isSubMenu: true
+            property bool isSubMenu: false
             property int margin: 4
 
-            implicitHeight: contentHeight > 0 ? Math.min(contentHeight + topMargin + bottomMargin, appsTrayModuleRoot.maxHeight) : 0
             topMargin: margin
             bottomMargin: isSubMenu ? 48 : margin
-            leftMargin: margin
-            rightMargin: margin
+            implicitHeight: contentHeight > 0 ? Math.min(contentHeight + topMargin + bottomMargin, appsTrayModuleRoot.maxHeight) : 0
             layer.enabled: StackView.view ? StackView.view.busy : false
             layer.smooth: true
 
@@ -259,28 +261,21 @@ MyPopover {
                 DelegateChoice {
                     roleValue: true
 
-                    Item {
-                        width: traySubMenuRoot.width
-                        height: childrenRect.height
-
-                        MenuSeparator {
-                            width: parent.width
-                            x: -traySubMenuRoot.leftMargin
-                        }
-                    }
+                    MyDropdown.MenuSeparator {}
                 }
 
                 DelegateChoice {
                     roleValue: false
 
-                    MenuItem {
+                    MyDropdown.MenuItem {
                         required property var modelData
 
-                        width: traySubMenuRoot.width - traySubMenuRoot.leftMargin - traySubMenuRoot.rightMargin
+                        anchors.leftMargin: traySubMenuRoot.margin
+                        anchors.rightMargin: traySubMenuRoot.margin
 
                         text: modelData.text
                         enabled: modelData.enabled
-                        hasChildren: modelData.hasChildren
+                        hasSubMenu: modelData.hasChildren
                         buttonType: modelData.buttonType
                         checkState: modelData.checkState
 
@@ -312,19 +307,14 @@ MyPopover {
         }
     }
 
-    component AppItem: Rectangle {
+    component AppItem: AbstractButton {
         id: appItemRoot
 
         required property var appId
-        property string icon
+        property string iconSource
         property bool active
 
-        signal clicked
-
-        width: 32
-        height: 32
-        color: appItemHover.hovered || active ? theme.accent : "transparent"
-        radius: 4
+        hoverEnabled: true
 
         function getIconSource(id: string, pathname: string): string {
             if (id in config.tray.iconSubs) {
@@ -338,92 +328,29 @@ MyPopover {
             return pathname;
         }
 
-        Image {
-            id: appItemIcon
+        background: Rectangle {
+            color: appItemRoot.active || appItemRoot.hovered || appItemRoot.pressed ? theme.accent : Qt.alpha(theme.accent, 0)
+            radius: 8
 
-            width: 20
-            height: 20
-            anchors.centerIn: parent
-            source: appItemRoot.getIconSource(appItemRoot.appId, appItemRoot.icon)
-            sourceSize: Qt.size(20, 20)
-        }
-
-        HoverHandler {
-            id: appItemHover
-        }
-        TapHandler {
-            onTapped: appItemRoot.clicked()
-        }
-    }
-
-    component MenuSeparator: Item {
-        id: menuSeparatorRoot
-
-        Layout.fillWidth: true
-        height: 9
-
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            height: 1
-            color: theme.border
-        }
-    }
-
-    component MenuItem: WrapperRectangle {
-        id: trayMenuItemRoot
-
-        property string text: ""
-        property bool enabled: true
-        property bool hasChildren: false
-        property var buttonType: QsMenuButtonType.None
-        property var checkState: 0 // 0: unchecked, 1: partially checked, 2: checked
-
-        signal clicked
-
-        color: trayMenuItemHover.hovered ? theme.accent : "transparent"
-        radius: 4
-        opacity: enabled ? 1 : 0.5
-        topMargin: 6
-        bottomMargin: 6
-        leftMargin: 8
-        rightMargin: 8
-        Layout.fillWidth: true
-
-        RowLayout {
-            spacing: 6
-
-            MyText {
-                text: trayMenuItemRoot.text
-                color: theme.popoverForeground
-                font.pixelSize: 14
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-            }
-
-            MyIcon {
-                visible: trayMenuItemRoot.hasChildren
-                source: "root:/assets/icons/chevron-right.svg"
-                size: 16
-            }
-
-            MyIcon {
-                visible: trayMenuItemRoot.buttonType !== QsMenuButtonType.None && trayMenuItemRoot.checkState > 0
-                source: "root:/assets/icons/check.svg"
-                size: 16
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                    easing.type: Easing.OutCubic
+                }
             }
         }
 
-        HoverHandler {
-            id: trayMenuItemHover
+        contentItem: Item {
+            implicitWidth: 32
+            implicitHeight: 32
 
-            enabled: trayMenuItemRoot.enabled
-        }
-
-        TapHandler {
-            enabled: trayMenuItemRoot.enabled
-            onTapped: trayMenuItemRoot.clicked()
+            Image {
+                anchors.centerIn: parent
+                width: 20
+                height: 20
+                source: appItemRoot.getIconSource(appItemRoot.appId, appItemRoot.iconSource)
+                sourceSize: Qt.size(20, 20)
+            }
         }
     }
 

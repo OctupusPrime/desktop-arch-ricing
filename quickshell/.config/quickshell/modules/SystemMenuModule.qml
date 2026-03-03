@@ -9,100 +9,95 @@ import qs.components
 MyPopover {
     id: systemMenuModuleRoot
 
-    MyPopover.Trigger {
+    property real maxWidth: 148
+    property real maxHeight: Screen.height * 0.6
+
+    MyPopover.Anchor {
         MyIcon {
             source: "root:/assets/icons/arch.svg"
         }
     }
 
-    MyPopover.Content {
-        WrapperItem {
-            margin: 4
-            width: 148
+    ListModel {
+        id: systemMenuModel
 
-            ColumnLayout {
-                spacing: 0
-
-                MenuLabel {
-                    text: "System"
-                }
-                MenuItem {
-                    text: "Sleep mode"
-                    onClicked: SystemService.sleep()
-                }
-                MenuItem {
-                    text: "Shutdown"
-                    onClicked: SystemService.shutdown()
-                }
-                MenuItem {
-                    text: "Restart"
-                    onClicked: SystemService.restart()
-                }
+        ListElement {
+            type: "label"
+            text: "System"
+        }
+        ListElement {
+            type: "item"
+            text: "Sleep mode"
+            onClicked: function () {
+                SystemService.sleep();
+            }
+        }
+        ListElement {
+            type: "item"
+            text: "Shutdown"
+            onClicked: function () {
+                SystemService.shutdown();
+            }
+        }
+        ListElement {
+            type: "item"
+            text: "Restart"
+            onClicked: function () {
+                SystemService.restart();
             }
         }
     }
 
-    component MenuLabel: WrapperItem {
-        id: labelRoot
+    MyPopover.Content {
+        ListView {
+            id: contentListView
 
-        property string text: ""
+            property int margin: 4
 
-        topMargin: 6
-        bottomMargin: 6
-        leftMargin: 8
-        rightMargin: 8
-        Layout.fillWidth: true
+            topMargin: margin
+            bottomMargin: margin
+            implicitWidth: systemMenuModuleRoot.maxWidth
+            implicitHeight: Math.min(contentHeight + topMargin + bottomMargin, systemMenuModuleRoot.maxHeight)
 
-        MyText {
-            text: labelRoot.text
-            color: theme.popoverForeground
-            font.pixelSize: 14
-            font.weight: 500
-        }
-    }
+            ScrollBar.vertical: ScrollBar {
+                policy: ScrollBar.AsNeeded
+            }
 
-    component MenuItem: WrapperRectangle {
-        id: menuItemRoot
+            model: systemMenuModel
+            delegate: DelegateChooser {
+                role: "type"
 
-        property string text: ""
+                DelegateChoice {
+                    roleValue: "separator"
 
-        signal clicked
+                    MyDropdown.MenuSeparator {}
+                }
+                DelegateChoice {
+                    roleValue: "label"
 
-        color: hoverHandler.hovered ? theme.accent : "transparent"
-        radius: 4
-        topMargin: 6
-        bottomMargin: 6
-        leftMargin: 8
-        rightMargin: 8
-        Layout.fillWidth: true
+                    MyDropdown.MenuLabel {
+                        required property var modelData
 
-        MyText {
-            text: menuItemRoot.text
-            color: hoverHandler.hovered ? theme.accentForeground : theme.popoverForeground
-            font.pixelSize: 14
-        }
+                        anchors.leftMargin: contentListView.margin
+                        anchors.rightMargin: contentListView.margin
 
-        HoverHandler {
-            id: hoverHandler
-        }
+                        text: modelData.text
+                    }
+                }
+                DelegateChoice {
+                    roleValue: "item"
 
-        TapHandler {
-            onTapped: menuItemRoot.clicked()
-        }
-    }
+                    MyDropdown.MenuItem {
+                        required property var modelData
 
-    component Separator: Item {
-        height: 9
-        Layout.fillWidth: true
-        Layout.leftMargin: -4
-        Layout.rightMargin: -4
+                        anchors.leftMargin: contentListView.margin
+                        anchors.rightMargin: contentListView.margin
 
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            height: 1
-            color: theme.border
+                        text: modelData.text
+                        onClicked: modelData.onClicked()
+                    }
+                }
+            }
         }
     }
 }
