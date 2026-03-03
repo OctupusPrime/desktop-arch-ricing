@@ -78,10 +78,6 @@ Item {
 
         anchors.fill: parent
 
-        TapHandler {
-            onTapped: popoverRoot.open()
-        }
-
         Binding {
             target: popoverRoot._anchor
             property: "parent"

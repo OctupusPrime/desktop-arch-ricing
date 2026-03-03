@@ -60,7 +60,7 @@ AbstractButton {
                 name: "ghost"
                 PropertyChanges {
                     target: buttonRoot
-                    _bgColor: "transparent"
+                    _bgColor: Qt.alpha(theme.muted, 0)
                     _hoverBgColor: theme.state === "dark" ? Qt.alpha(theme.muted, 0.5) : theme.muted
                     _borderColor: "transparent"
                     _contentColor: theme.foreground

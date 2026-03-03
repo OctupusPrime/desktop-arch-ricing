@@ -6,6 +6,7 @@ import QtQuick
 import QtCore
 import QtPositioning
 
+// TODO fix recalculation sunset / sunriosze even if timezone / location didn't change (because of date change)
 Singleton {
     id: systemService
 

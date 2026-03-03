@@ -20,6 +20,7 @@ Singleton {
         const cmd = `exec [move ${rect.x} ${rect.y}; size ${rect.width} ${rect.height};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`;
 
         Hyprland.dispatch(cmd);
+        // Move cursor to the copilot CLI's position (bottom-left) to ensure it gets focus
         Hyprland.dispatch(`movecursor ${rect.x + 20} ${rect.y + rect.height - 20}`);
     }
     function closeCopilotCli() {

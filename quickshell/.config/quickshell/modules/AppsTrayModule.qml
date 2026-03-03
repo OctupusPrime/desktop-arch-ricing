@@ -25,8 +25,35 @@ MyPopover {
     }
 
     MyPopover.Anchor {
-        MyIcon {
-            source: "root:/assets/icons/boxes.svg"
+        AbstractButton {
+            id: anchorButtonRoot
+
+            property bool isActive: (appsTrayModuleRoot.opened && !appsTrayModuleRoot._isExiting) || hovered || pressed
+
+            hoverEnabled: true
+            onClicked: appsTrayModuleRoot.open()
+
+            background: Rectangle {
+                color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
+                radius: 10
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 150
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+
+            contentItem: Item {
+                implicitWidth: 36
+                implicitHeight: 36
+
+                MyIcon {
+                    source: "root:/assets/icons/boxes.svg"
+                    anchors.centerIn: parent
+                }
+            }
         }
     }
 
@@ -364,7 +391,7 @@ MyPopover {
 
         Rectangle {
             anchors.fill: parent
-            radius: 8
+            radius: 10
 
             gradient: Gradient {
                 GradientStop {

@@ -1,7 +1,5 @@
-import Quickshell.Widgets
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 
 import qs.singletons
 import qs.components
@@ -13,8 +11,35 @@ MyPopover {
     property real maxHeight: Screen.height * 0.6
 
     MyPopover.Anchor {
-        MyIcon {
-            source: "root:/assets/icons/arch.svg"
+        AbstractButton {
+            id: anchorButtonRoot
+
+            property bool isActive: (systemMenuModuleRoot.opened && !systemMenuModuleRoot._isExiting) || hovered || pressed
+
+            hoverEnabled: true
+            onClicked: systemMenuModuleRoot.open()
+
+            background: Rectangle {
+                color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
+                radius: 10
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 150
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+
+            contentItem: Item {
+                implicitWidth: 36
+                implicitHeight: 36
+
+                MyIcon {
+                    source: "root:/assets/icons/arch.svg"
+                    anchors.centerIn: parent
+                }
+            }
         }
     }
 

@@ -36,19 +36,19 @@ ShellRoot {
                 color: Qt.alpha(theme.background, 0.75)
 
                 RowLayout {
-                    spacing: 20
+                    spacing: 16
 
                     anchors {
                         verticalCenter: parent.verticalCenter
                         left: parent.left
-                        leftMargin: 14
+                        leftMargin: 8
                     }
 
                     CopilotModule {}
                 }
 
                 RowLayout {
-                    spacing: 20
+                    spacing: 16
 
                     anchors {
                         verticalCenter: parent.verticalCenter
