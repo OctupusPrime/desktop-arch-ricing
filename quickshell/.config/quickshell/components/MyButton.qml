@@ -14,6 +14,8 @@ AbstractButton {
     property color _hoverBgColor: Qt.alpha(theme.primary, 0.8)
     property color _borderColor: "transparent"
     property color _contentColor: theme.primaryForeground
+
+    property int _width: -1
     property int _height: 32
     property int _radius: 10
     property int _padding: 10
@@ -90,21 +92,10 @@ AbstractButton {
         state: buttonRoot.size
         states: [
             State {
-                name: "default"
-                PropertyChanges {
-                    target: buttonRoot
-                    _height: 32
-                    _radius: 10
-                    _padding: 10
-                    _gap: 6
-                    _fontSize: 14
-                    _iconSize: 16
-                }
-            },
-            State {
                 name: "xs"
                 PropertyChanges {
                     target: buttonRoot
+                    _width: -1
                     _height: 24
                     _radius: 8
                     _padding: 8
@@ -117,6 +108,7 @@ AbstractButton {
                 name: "sm"
                 PropertyChanges {
                     target: buttonRoot
+                    _width: -1
                     _height: 28
                     _radius: 8
                     _padding: 10
@@ -126,9 +118,23 @@ AbstractButton {
                 }
             },
             State {
+                name: "default"
+                PropertyChanges {
+                    target: buttonRoot
+                    _width: -1
+                    _height: 32
+                    _radius: 10
+                    _padding: 10
+                    _gap: 6
+                    _fontSize: 14
+                    _iconSize: 16
+                }
+            },
+            State {
                 name: "lg"
                 PropertyChanges {
                     target: buttonRoot
+                    _width: -1
                     _height: 36
                     _radius: 10
                     _padding: 10
@@ -138,22 +144,11 @@ AbstractButton {
                 }
             },
             State {
-                name: "icon"
-                PropertyChanges {
-                    target: buttonRoot
-                    _height: 36
-                    _radius: 10
-                    _padding: 0
-                    _gap: 0
-                    _fontSize: 0
-                    _iconSize: 16
-                }
-            },
-            State {
                 name: "icon-xs"
                 PropertyChanges {
                     target: buttonRoot
                     _height: 24
+                    _width: 24
                     _radius: 8
                     _padding: 0
                     _gap: 0
@@ -165,8 +160,22 @@ AbstractButton {
                 name: "icon-sm"
                 PropertyChanges {
                     target: buttonRoot
+                    _width: 28
                     _height: 28
                     _radius: 8
+                    _padding: 0
+                    _gap: 0
+                    _fontSize: 0
+                    _iconSize: 16
+                }
+            },
+            State {
+                name: "icon"
+                PropertyChanges {
+                    target: buttonRoot
+                    _width: 32
+                    _height: 32
+                    _radius: 10
                     _padding: 0
                     _gap: 0
                     _fontSize: 0
@@ -177,7 +186,8 @@ AbstractButton {
                 name: "icon-lg"
                 PropertyChanges {
                     target: buttonRoot
-                    _height: 36
+                    _width: 32
+                    _height: 32
                     _radius: 10
                     _padding: 0
                     _gap: 0
@@ -188,12 +198,10 @@ AbstractButton {
         ]
     }
 
-    leftPadding: _padding
-    rightPadding: _padding
-
     hoverEnabled: enabled
     opacity: enabled ? 1.0 : 0.5
     implicitHeight: _height
+    implicitWidth: _width > 0 ? _width : contentRow.implicitWidth + _padding * 2
 
     background: Rectangle {
         color: (buttonRoot.hovered || buttonRoot.pressed) ? buttonRoot._hoverBgColor : buttonRoot._bgColor

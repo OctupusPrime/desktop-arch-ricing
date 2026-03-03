@@ -5,15 +5,19 @@ Item {
     id: iconRoot
 
     required property var source
-    property var size: 24
+    property int size: 24
     property color color: theme.foreground
 
-    width: size
-    height: size
+    implicitWidth: size
+    implicitHeight: size
 
     Image {
         anchors.fill: parent
         source: iconRoot.source
+
+        sourceSize.width: iconRoot.size
+        sourceSize.height: iconRoot.size
+        fillMode: Image.PreserveAspectFit
 
         layer.enabled: true
         layer.effect: MultiEffect {

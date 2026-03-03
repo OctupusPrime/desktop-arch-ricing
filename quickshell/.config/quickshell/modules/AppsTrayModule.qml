@@ -299,9 +299,9 @@ MyPopover {
 
             CloseSubMenuButton {
                 visible: traySubMenuRoot.isSubMenu
-                width: traySubMenuRoot.width
+                anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                z: 10
                 onClicked: traySubMenuRoot.StackView.view.pop()
             }
         }
@@ -365,6 +365,7 @@ MyPopover {
         Rectangle {
             anchors.fill: parent
             radius: 8
+
             gradient: Gradient {
                 GradientStop {
                     position: 0
@@ -398,7 +399,6 @@ MyPopover {
                 size: "sm"
                 variant: "secondary"
                 text: "Back"
-                anchors.fill: parent
                 onClicked: closeSubMenuButtonRoot.clicked()
             }
         }
