@@ -10,6 +10,8 @@ import qs.components
 MyPopover {
     id: mediaMenuModuleRoot
 
+    readonly property var monitor: MonitorService.getMonitorForScreen(panel.screen)
+
     property real maxWidth: 280
     property real maxHeight: Screen.height * 0.6
 
@@ -90,7 +92,6 @@ MyPopover {
                     id: videoTrackerRoot
                     implicitWidth: 22
                     implicitHeight: 22
-                    opacity: MediaService.video ? 1 : 0.5
 
                     PwNodeLinkTracker {
                         id: videoLinkTracker
@@ -152,7 +153,7 @@ MyPopover {
 
                                 triggerDelegate: Component {
                                     RowLayout {
-                                        spacing: 8
+                                        spacing: 6
 
                                         MyIcon {
                                             size: 18
@@ -160,8 +161,9 @@ MyPopover {
                                         }
 
                                         MySlider {
-                                            value: 100
-                                            enabled: false
+                                            value: mediaMenuModuleRoot.monitor.brightness
+                                            onValueChanged: mediaMenuModuleRoot.monitor.setBrightness(value)
+
                                             Layout.fillWidth: true
                                         }
 
@@ -176,7 +178,7 @@ MyPopover {
 
                                 triggerDelegate: Component {
                                     RowLayout {
-                                        spacing: 8
+                                        spacing: 6
 
                                         MyIcon {
                                             size: 18
@@ -215,7 +217,8 @@ MyPopover {
                                 }
                                 contentDelegate: Component {
                                     MyText {
-                                        text: "Volume"
+                                        text: MediaService.sink.nickname
+                                        wrapMode: Text.Wrap
                                     }
                                 }
                             }
@@ -224,7 +227,7 @@ MyPopover {
 
                                 triggerDelegate: Component {
                                     RowLayout {
-                                        spacing: 8
+                                        spacing: 6
 
                                         MyIcon {
                                             size: 18
@@ -263,7 +266,8 @@ MyPopover {
                                 }
                                 contentDelegate: Component {
                                     MyText {
-                                        text: "Microphone"
+                                        text: MediaService.source.nickname
+                                        wrapMode: Text.Wrap
                                     }
                                 }
                             }

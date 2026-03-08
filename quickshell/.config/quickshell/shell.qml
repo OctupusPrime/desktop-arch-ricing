@@ -24,7 +24,9 @@ ShellRoot {
         Component {
             PanelWindow {
                 id: panel
+
                 required property var modelData
+                screen: modelData
 
                 anchors {
                     bottom: true
