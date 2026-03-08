@@ -71,6 +71,8 @@ ShellRoot {
                         rightMargin: 6
                     }
 
+                    MediaMenuModule {}
+
                     KeyboardModule {}
 
                     TimeModule {}
