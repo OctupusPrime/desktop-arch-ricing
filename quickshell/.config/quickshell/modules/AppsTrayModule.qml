@@ -76,11 +76,6 @@ MyPopover {
                         easing.type: Easing.OutCubic
                     }
                 }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: appsTrayModuleRoot.close()
-                }
             }
 
             Item {

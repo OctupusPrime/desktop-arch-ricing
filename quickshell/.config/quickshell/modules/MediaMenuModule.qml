@@ -122,11 +122,6 @@ MyPopover {
             width: mediaMenuModuleRoot.maxWidth
             height: mediaMenuModuleRoot.maxHeight
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: mediaMenuModuleRoot.close()
-            }
-
             Item {
                 width: mediaMenuModuleRoot.maxWidth
                 height: Math.min(contentContainer.implicitHeight, mediaMenuModuleRoot.maxHeight)
@@ -157,10 +152,11 @@ MyPopover {
 
                                         MyIcon {
                                             size: 18
-                                            source: "root:/assets/icons/sun.svg"
+                                            source: mediaMenuModuleRoot.monitor.brightnessIcon
                                         }
 
                                         MySlider {
+                                            to: 1
                                             value: mediaMenuModuleRoot.monitor.brightness
                                             onValueChanged: mediaMenuModuleRoot.monitor.setBrightness(value)
 
@@ -287,10 +283,10 @@ MyPopover {
                                 spacing: 10
 
                                 MyButton {
-                                    text: "Night Light"
+                                    text: "Night Shift"
                                     iconSource: "root:/assets/icons/sun-moon.svg"
-                                    variant: "secondary"
-                                    enabled: false
+                                    variant: MonitorService.nightShiftEnabled ? "primary" : "secondary"
+                                    onClicked: MonitorService.toggleNightShift()
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0

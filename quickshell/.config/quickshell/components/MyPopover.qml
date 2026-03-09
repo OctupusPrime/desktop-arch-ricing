@@ -106,6 +106,11 @@ Item {
                 }
             }
 
+            MouseArea {
+                anchors.fill: parent
+                onClicked: popoverRoot.close()
+            }
+
             Item {
                 id: contentContainer
 

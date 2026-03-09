@@ -72,6 +72,14 @@ Singleton {
         property real brightness
         property real queuedBrightness: NaN
 
+        readonly property string brightnessIcon: {
+            if (brightness < 0.33)
+                return "root:/assets/icons/sun-dim.svg";
+            if (brightness < 0.66)
+                return "root:/assets/icons/sun-medium.svg";
+            return "root:/assets/icons/sun.svg";
+        }
+
         readonly property Process initProc: Process {
             stdout: StdioCollector {
                 onStreamFinished: {
@@ -177,5 +185,24 @@ Singleton {
 
             return `Set monitor ${monitor.modelData.name} brightness to ${+monitor.brightness.toFixed(2)}`;
         }
+    }
+
+    property bool nightShiftEnabled: false
+
+    function enableNightShift(): void {
+        Quickshell.execDetached(["hyprctl", "hyprsunset", "temperature", "3800"]);
+        nightShiftEnabled = true;
+    }
+
+    function disableNightShift(): void {
+        Quickshell.execDetached(["hyprctl", "hyprsunset", "identity"]);
+        nightShiftEnabled = false;
+    }
+
+    function toggleNightShift(): void {
+        if (nightShiftEnabled)
+            disableNightShift();
+        else
+            enableNightShift();
     }
 }
