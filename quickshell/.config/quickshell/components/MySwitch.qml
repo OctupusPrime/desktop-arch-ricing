@@ -1,0 +1,31 @@
+import QtQuick
+import QtQuick.Controls.Basic
+
+Switch {
+    id: switchRoot
+
+    indicator: Rectangle {
+        implicitWidth: 32
+        implicitHeight: 18
+        x: switchRoot.leftPadding
+        y: parent.height / 2 - height / 2
+        radius: 10
+        color: switchRoot.checked ? theme.primary : (theme.state === "dark" ? Qt.alpha(theme.input, 0.15 * 0.8) : theme.input)
+
+        Rectangle {
+            x: switchRoot.checked ? parent.width - width - 1 : 1
+            y: 1
+            width: 16
+            height: 16
+            radius: 8
+            color: switchRoot.checked ? (theme.state === "dark" ? theme.primaryForeground : theme.background) : (theme.state === "dark" ? theme.foreground : theme.background)
+
+            Behavior on x {
+                NumberAnimation {
+                    duration: 100
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
+    }
+}

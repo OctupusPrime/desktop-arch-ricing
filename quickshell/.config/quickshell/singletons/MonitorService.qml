@@ -190,7 +190,7 @@ Singleton {
     property bool nightShiftEnabled: false
 
     function enableNightShift(): void {
-        Quickshell.execDetached(["hyprctl", "hyprsunset", "temperature", "3800"]);
+        Quickshell.execDetached(["hyprctl", "hyprsunset", "temperature", "4000"]);
         nightShiftEnabled = true;
     }
 

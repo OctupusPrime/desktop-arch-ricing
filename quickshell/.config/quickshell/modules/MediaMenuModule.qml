@@ -159,12 +159,65 @@ MyPopover {
                                             to: 1
                                             value: mediaMenuModuleRoot.monitor.brightness
                                             onValueChanged: mediaMenuModuleRoot.monitor.setBrightness(value)
-
                                             Layout.fillWidth: true
                                         }
 
                                         Item {
                                             width: 18
+                                            height: 18
+
+                                            AbstractButton {
+                                                z: 10
+                                                anchors.fill: parent
+                                                anchors.margins: -10
+
+                                                onClicked: brightnessAccordionItem.toggle()
+
+                                                contentItem: Item {
+                                                    MyIcon {
+                                                        size: 18
+                                                        source: brightnessAccordionItem.expanded ? "root:/assets/icons/chevron-up.svg" : "root:/assets/icons/chevron-down.svg"
+                                                        anchors.centerIn: parent
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                contentDelegate: Column {
+                                    AbstractButton {
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.rightMargin: -10
+
+                                        contentItem: RowLayout {
+                                            MyText {
+                                                text: "Adaptive Brightness"
+                                                fontSize: 14
+                                                Layout.fillWidth: true
+                                            }
+                                            MySwitch {
+                                                enabled: false
+                                            }
+                                        }
+                                    }
+                                    AbstractButton {
+                                        anchors.left: parent.left
+                                        anchors.right: parent.right
+                                        anchors.rightMargin: -10
+
+                                        onClicked: MonitorService.toggleNightShift()
+
+                                        contentItem: RowLayout {
+                                            MyText {
+                                                text: "Night Shift"
+                                                fontSize: 14
+                                                Layout.fillWidth: true
+                                            }
+                                            MySwitch {
+                                                enabled: false
+                                                checked: MonitorService.nightShiftEnabled
+                                            }
                                         }
                                     }
                                 }
@@ -185,7 +238,6 @@ MyPopover {
                                             to: 1
                                             value: MediaService.sinkVolume
                                             onValueChanged: MediaService.setSinkVolume(value)
-
                                             Layout.fillWidth: true
                                         }
 
@@ -234,7 +286,6 @@ MyPopover {
                                             to: 1
                                             value: MediaService.sourceVolume
                                             onValueChanged: MediaService.setSourceVolume(value)
-
                                             Layout.fillWidth: true
                                         }
 
@@ -283,10 +334,10 @@ MyPopover {
                                 spacing: 10
 
                                 MyButton {
-                                    text: "Night Shift"
-                                    iconSource: "root:/assets/icons/sun-moon.svg"
-                                    variant: MonitorService.nightShiftEnabled ? "primary" : "secondary"
-                                    onClicked: MonitorService.toggleNightShift()
+                                    text: "Microphone"
+                                    iconSource: "root:/assets/icons/mic.svg"
+                                    variant: "secondary"
+                                    enabled: false
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
