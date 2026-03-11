@@ -6,7 +6,7 @@ RadioButton {
 
     property int textPosition: Qt.RightEdge
 
-    implicitHeight: 16
+    implicitHeight: Math.max(indicator.implicitHeight, contentItem.implicitHeight)
     spacing: 12
 
     indicator: Rectangle {

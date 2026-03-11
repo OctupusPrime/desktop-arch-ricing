@@ -6,7 +6,7 @@ Switch {
 
     property int textPosition: Qt.RightEdge
 
-    implicitHeight: 18
+    implicitHeight: Math.max(indicator.implicitHeight, contentItem.implicitHeight)
     spacing: 8
 
     indicator: Rectangle {
