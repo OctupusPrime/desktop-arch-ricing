@@ -2,6 +2,7 @@ pragma Singleton
 
 import Quickshell
 import Quickshell.Services.Pipewire
+import Quickshell.Io
 import QtQuick
 
 // TODO check if cameras are working
@@ -33,13 +34,17 @@ Singleton {
 
     readonly property PwNode sink: Pipewire.defaultAudioSink
     readonly property PwNode source: Pipewire.defaultAudioSource
-    readonly property PwNode video: nodes.videos.length > 0 ? nodes.videos[0] : null
+    readonly property PwNode video: {
+        const preferred = nodes.videos.find(n => !n.name.includes("dummy"));
+        return preferred ?? nodes.videos[0] ?? null;
+    }
 
     readonly property bool sinkMuted: !!sink?.audio?.muted
     readonly property real sinkVolume: sink?.audio?.volume ?? 0
 
     readonly property real sourceVolume: source?.audio?.volume ?? 0
     readonly property bool sourceMuted: !!source?.audio?.muted
+    property bool videoMuted: false
 
     readonly property string sinkIcon: {
         if (sinkMuted || sinkVolume === 0)
@@ -55,7 +60,11 @@ Singleton {
             return "root:/assets/icons/mic-off.svg";
         return "root:/assets/icons/mic.svg";
     }
-    readonly property string videoIcon: "root:/assets/icons/video.svg"
+    readonly property string videoIcon: {
+        if (videoMuted)
+            return "root:/assets/icons/video-off.svg";
+        return "root:/assets/icons/video.svg";
+    }
 
     function setSinkVolume(newVolume: real): void {
         if (sink?.ready && sink?.audio) {
@@ -95,12 +104,52 @@ Singleton {
         Pipewire.preferredDefaultAudioSource = newSource;
     }
 
-    function enableVideoSource(): void {
-        console.log('TODO: Enable video source');
+    function muteSource(): void {
+        if (source?.ready && source?.audio)
+            source.audio.muted = true;
     }
 
-    function disableVideoSource(): void {
-        console.log('TODO: Disable video source');
+    function unmuteSource(): void {
+        if (source?.ready && source?.audio)
+            source.audio.muted = false;
+    }
+
+    function toggleSourceMute(): void {
+        if (sourceMuted)
+            unmuteSource();
+        else
+            muteSource();
+    }
+
+    Process {
+        id: videoPermissionCmd
+    }
+
+    function muteVideo(): void {
+        if (!video)
+            return;
+
+        videoPermissionCmd.command = ["pw-cli", "s", video.id.toString(), "Permissions", "0"];
+        videoPermissionCmd.running = true;
+
+        videoMuted = true;
+    }
+
+    function unmuteVideo(): void {
+        if (!video)
+            return;
+
+        videoPermissionCmd.command = ["pw-cli", "s", video.id.toString(), "Permissions", "0x7"];
+        videoPermissionCmd.running = true;
+
+        videoMuted = false;
+    }
+
+    function toggleVideoMute(): void {
+        if (videoMuted)
+            unmuteVideo();
+        else
+            muteVideo();
     }
 
     PwObjectTracker {

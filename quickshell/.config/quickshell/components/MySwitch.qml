@@ -4,11 +4,18 @@ import QtQuick.Controls.Basic
 Switch {
     id: switchRoot
 
+    property int textPosition: Qt.RightEdge
+
+    implicitHeight: 18
+    spacing: 8
+
     indicator: Rectangle {
         implicitWidth: 32
         implicitHeight: 18
-        x: switchRoot.leftPadding
+
+        x: switchRoot.textPosition === Qt.RightEdge ? switchRoot.leftPadding : switchRoot.width - width - switchRoot.rightPadding
         y: parent.height / 2 - height / 2
+
         radius: 10
         color: switchRoot.checked ? theme.primary : (theme.state === "dark" ? Qt.alpha(theme.input, 0.15 * 0.8) : theme.input)
 
@@ -27,5 +34,17 @@ Switch {
                 }
             }
         }
+    }
+
+    contentItem: MyText {
+        text: switchRoot.text
+        fontSize: 14
+        fontWeight: 500
+        opacity: switchRoot.enabled ? 1.0 : 0.5
+        verticalAlignment: Text.AlignVCenter
+        wrapMode: Text.Wrap
+
+        leftPadding: switchRoot.textPosition === Qt.RightEdge ? switchRoot.indicator.implicitWidth + switchRoot.spacing : 0
+        rightPadding: switchRoot.textPosition === Qt.LeftEdge ? switchRoot.indicator.implicitWidth + switchRoot.spacing : 0
     }
 }

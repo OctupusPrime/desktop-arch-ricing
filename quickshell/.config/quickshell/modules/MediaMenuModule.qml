@@ -162,63 +162,23 @@ MyPopover {
                                             Layout.fillWidth: true
                                         }
 
-                                        Item {
-                                            width: 18
-                                            height: 18
-
-                                            AbstractButton {
-                                                z: 10
-                                                anchors.fill: parent
-                                                anchors.margins: -10
-
-                                                onClicked: brightnessAccordionItem.toggle()
-
-                                                contentItem: Item {
-                                                    MyIcon {
-                                                        size: 18
-                                                        source: brightnessAccordionItem.expanded ? "root:/assets/icons/chevron-up.svg" : "root:/assets/icons/chevron-down.svg"
-                                                        anchors.centerIn: parent
-                                                    }
-                                                }
-                                            }
+                                        AccordionTriggerButton {
+                                            ref: brightnessAccordionItem
                                         }
                                     }
                                 }
-                                contentDelegate: Column {
-                                    AbstractButton {
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.rightMargin: -10
+                                contentDelegate: ColumnLayout {
+                                    spacing: 8
 
-                                        contentItem: RowLayout {
-                                            MyText {
-                                                text: "Adaptive Brightness"
-                                                fontSize: 14
-                                                Layout.fillWidth: true
-                                            }
-                                            MySwitch {
-                                                enabled: false
-                                            }
-                                        }
-                                    }
-                                    AbstractButton {
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.rightMargin: -10
+                                    MySwitch {
+                                        text: "Night Shift"
+                                        textPosition: Qt.LeftEdge
+                                        checked: MonitorService.nightShiftEnabled
+                                        onCheckedChanged: MonitorService.toggleNightShift()
 
-                                        onClicked: MonitorService.toggleNightShift()
-
-                                        contentItem: RowLayout {
-                                            MyText {
-                                                text: "Night Shift"
-                                                fontSize: 14
-                                                Layout.fillWidth: true
-                                            }
-                                            MySwitch {
-                                                enabled: false
-                                                checked: MonitorService.nightShiftEnabled
-                                            }
-                                        }
+                                        Layout.fillWidth: true
+                                        Layout.leftMargin: -4
+                                        Layout.rightMargin: -4
                                     }
                                 }
                             }
@@ -241,32 +201,25 @@ MyPopover {
                                             Layout.fillWidth: true
                                         }
 
-                                        Item {
-                                            width: 18
-                                            height: 18
-
-                                            AbstractButton {
-                                                z: 10
-                                                anchors.fill: parent
-                                                anchors.margins: -10
-
-                                                onClicked: sinkAccordionItem.toggle()
-
-                                                contentItem: Item {
-                                                    MyIcon {
-                                                        size: 18
-                                                        source: sinkAccordionItem.expanded ? "root:/assets/icons/chevron-up.svg" : "root:/assets/icons/chevron-down.svg"
-                                                        anchors.centerIn: parent
-                                                    }
-                                                }
-                                            }
+                                        AccordionTriggerButton {
+                                            ref: sinkAccordionItem
                                         }
                                     }
                                 }
-                                contentDelegate: Component {
-                                    MyText {
-                                        text: MediaService.sink.nickname
-                                        wrapMode: Text.Wrap
+                                contentDelegate: ColumnLayout {
+                                    spacing: 8
+
+                                    Repeater {
+                                        model: MediaService.sinks
+                                        delegate: MyRadioButton {
+                                            text: modelData.nickname ?? modelData.description ?? modelData.name ?? "Unknown"
+                                            checked: modelData.id === MediaService.sink.id
+                                            onClicked: MediaService.setAudioSink(modelData)
+
+                                            Layout.fillWidth: true
+                                            Layout.leftMargin: -4
+                                            Layout.rightMargin: -4
+                                        }
                                     }
                                 }
                             }
@@ -289,32 +242,25 @@ MyPopover {
                                             Layout.fillWidth: true
                                         }
 
-                                        Item {
-                                            width: 18
-                                            height: 18
-
-                                            AbstractButton {
-                                                z: 10
-                                                anchors.fill: parent
-                                                anchors.margins: -10
-
-                                                onClicked: sourceAccordionItem.toggle()
-
-                                                contentItem: Item {
-                                                    MyIcon {
-                                                        size: 18
-                                                        source: sourceAccordionItem.expanded ? "root:/assets/icons/chevron-up.svg" : "root:/assets/icons/chevron-down.svg"
-                                                        anchors.centerIn: parent
-                                                    }
-                                                }
-                                            }
+                                        AccordionTriggerButton {
+                                            ref: sourceAccordionItem
                                         }
                                     }
                                 }
-                                contentDelegate: Component {
-                                    MyText {
-                                        text: MediaService.source.nickname
-                                        wrapMode: Text.Wrap
+                                contentDelegate: ColumnLayout {
+                                    spacing: 8
+
+                                    Repeater {
+                                        model: MediaService.sources
+                                        delegate: MyRadioButton {
+                                            text: modelData.nickname ?? modelData.description ?? modelData.name ?? "Unknown"
+                                            checked: modelData.id === MediaService.source.id
+                                            onClicked: MediaService.setAudioSource(modelData)
+
+                                            Layout.fillWidth: true
+                                            Layout.leftMargin: -4
+                                            Layout.rightMargin: -4
+                                        }
                                     }
                                 }
                             }
@@ -336,8 +282,8 @@ MyPopover {
                                 MyButton {
                                     text: "Microphone"
                                     iconSource: "root:/assets/icons/mic.svg"
-                                    variant: "secondary"
-                                    enabled: false
+                                    variant: MediaService.sourceMuted ? "secondary" : "primary"
+                                    onClicked: MediaService.toggleSourceMute()
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
@@ -345,8 +291,9 @@ MyPopover {
                                 MyButton {
                                     text: "Camera"
                                     iconSource: "root:/assets/icons/video.svg"
-                                    variant: "secondary"
-                                    enabled: false
+                                    variant: MediaService.videoMuted || !MediaService.video ? "secondary" : "primary"
+                                    onClicked: MediaService.toggleVideoMute()
+                                    enabled: MediaService.video !== null
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
@@ -354,6 +301,31 @@ MyPopover {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    component AccordionTriggerButton: Item {
+        id: triggerButtonRoot
+
+        required property var ref
+
+        width: 18
+        height: 18
+
+        AbstractButton {
+            z: 10
+            anchors.fill: parent
+            anchors.margins: -10
+
+            onClicked: ref.toggle()
+
+            contentItem: Item {
+                MyIcon {
+                    size: 18
+                    source: ref.expanded ? "root:/assets/icons/chevron-up.svg" : "root:/assets/icons/chevron-down.svg"
+                    anchors.centerIn: parent
                 }
             }
         }

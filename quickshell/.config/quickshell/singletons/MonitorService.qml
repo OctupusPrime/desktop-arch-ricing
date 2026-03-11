@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import QtQuick
 
+// TODO create a custor script in go to controll auto brightness based on ambient light sensor and expose it via ipc, since ddcutil doesn't support it
 Singleton {
     id: monitorService
 
