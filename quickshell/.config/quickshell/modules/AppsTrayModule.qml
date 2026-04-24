@@ -88,6 +88,10 @@ MyPopover {
 
                 MyPopover.Background {}
 
+                MouseArea {
+                    anchors.fill: parent
+                }
+
                 Grid {
                     id: appsGridContainer
 
@@ -108,10 +112,10 @@ MyPopover {
                             active: appsTrayModuleRoot.activeAppId === modelData.id
 
                             onClicked: {
-                                appsTrayModuleRoot.menuStack.replace(trayMenuFactory, {
+                                appsTrayModuleRoot.activeAppId = modelData.id;
+                                appsTrayModuleRoot.menuStack.replaceCurrentItem(trayMenuFactory, {
                                     modelData: modelData
                                 });
-                                appsTrayModuleRoot.activeAppId = modelData.id;
                             }
                         }
                     }
@@ -303,7 +307,7 @@ MyPopover {
 
                         onClicked: {
                             if (modelData.hasChildren) {
-                                traySubMenuRoot.StackView.view.push(traySubMenuFactory, {
+                                traySubMenuRoot.StackView.view.pushItem(traySubMenuFactory, {
                                     handle: modelData,
                                     isSubMenu: true
                                 });
@@ -324,7 +328,7 @@ MyPopover {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                onClicked: traySubMenuRoot.StackView.view.pop()
+                onClicked: traySubMenuRoot.StackView.view.popCurrentItem()
             }
         }
     }

@@ -71,6 +71,28 @@ MyPopover {
                 SystemService.restart();
             }
         }
+        ListElement {
+            type: "separator"
+        }
+        ListElement {
+            type: "label"
+            text: "Appearance"
+        }
+        ListElement {
+            type: "appearanceItem"
+            text: "Light"
+            value: "light"
+        }
+        ListElement {
+            type: "appearanceItem"
+            text: "System"
+            value: "system"
+        }
+        ListElement {
+            type: "appearanceItem"
+            text: "Dark"
+            value: "dark"
+        }
     }
 
     MyPopover.Content {
@@ -120,6 +142,23 @@ MyPopover {
 
                         text: modelData.text
                         onClicked: modelData.onClicked()
+                    }
+                }
+                DelegateChoice {
+                    roleValue: "appearanceItem"
+
+                    MyDropdown.MenuItem {
+                        required property var modelData
+
+                        anchors.leftMargin: contentListView.margin
+                        anchors.rightMargin: contentListView.margin
+
+                        text: modelData.text
+                        buttonType: 2
+                        checkState: SystemService.appearance === modelData.value ? 2 : 0
+                        onClicked: {
+                            SystemService.appearance = modelData.value;
+                        }
                     }
                 }
             }

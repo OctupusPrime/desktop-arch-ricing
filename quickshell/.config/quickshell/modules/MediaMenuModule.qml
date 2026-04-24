@@ -131,7 +131,12 @@ MyPopover {
 
                 ScrollView {
                     anchors.fill: parent
-                    ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                    ScrollBar.vertical.policy: {
+                        if (contentContainer.implicitHeight > mediaMenuModuleRoot.maxHeight)
+                            return ScrollBar.AsNeeded;
+                        else
+                            return ScrollBar.AlwaysOff;
+                    }
 
                     Column {
                         id: contentContainer
@@ -212,8 +217,10 @@ MyPopover {
                                     Repeater {
                                         model: MediaService.sinks
                                         delegate: MyRadioButton {
+                                            required property var modelData
+
                                             text: modelData.nickname ?? modelData.description ?? modelData.name ?? "Unknown"
-                                            checked: modelData.id === MediaService.sink.id
+                                            checked: MediaService.sink ? modelData.id === MediaService.sink.id : false
                                             onClicked: MediaService.setAudioSink(modelData)
 
                                             Layout.fillWidth: true
@@ -253,8 +260,10 @@ MyPopover {
                                     Repeater {
                                         model: MediaService.sources
                                         delegate: MyRadioButton {
+                                            required property var modelData
+
                                             text: modelData.nickname ?? modelData.description ?? modelData.name ?? "Unknown"
-                                            checked: modelData.id === MediaService.source.id
+                                            checked: MediaService.source ? modelData.id === MediaService.source.id : false
                                             onClicked: MediaService.setAudioSource(modelData)
 
                                             Layout.fillWidth: true

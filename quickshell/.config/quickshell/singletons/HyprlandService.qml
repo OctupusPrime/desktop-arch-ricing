@@ -17,11 +17,15 @@ Singleton {
     }
 
     function openCopilotCli(rect) {
-        const cmd = `exec [move ${rect.x} ${rect.y}; size ${rect.width} ${rect.height};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`;
+        const safeX = Math.round(Number(rect.x));
+        const safeY = Math.round(Number(rect.y));
+        const safeW = Math.round(Number(rect.width));
+        const safeH = Math.round(Number(rect.height));
+        const cmd = `exec [move ${safeX} ${safeY}; size ${safeW} ${safeH};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`;
 
         Hyprland.dispatch(cmd);
         // Move cursor to the copilot CLI's position (bottom-left) to ensure it gets focus
-        Hyprland.dispatch(`movecursor ${rect.x + 20} ${rect.y + rect.height - 20}`);
+        Hyprland.dispatch(`movecursor ${safeX + 20} ${safeY + safeH - 20}`);
     }
     function closeCopilotCli() {
         Hyprland.dispatch("closewindow class:^(copilot-cli)$");

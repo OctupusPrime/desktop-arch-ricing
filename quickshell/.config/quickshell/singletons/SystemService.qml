@@ -6,64 +6,84 @@ import QtQuick
 import QtCore
 import QtPositioning
 
-// TODO fix recalculation sunset / sunriosze even if timezone / location didn't change (because of date change)
 Singleton {
     id: systemService
 
     readonly property string scriptsDir: Quickshell.env("HOME") + "/.config/scripts/"
 
-    property string appearance: "system"
-    property string timezone: "UTC"
-
-    property double latitude: -1
-    property double longitude: -1
-
-    property int sunrise: 480 // Default to 8:00
-    property int sunset: 1080 // Default to 18:00
-
-    readonly property string time: Qt.formatTime(systemClock.date, "HH:mm")
-    readonly property string date: Qt.formatDate(systemClock.date, "dd/MM/yyyy")
-
-    readonly property string theme: {
-        if (appearance === "system") {
-            const totalMinutes = systemClock.date.getHours() * 60 + systemClock.date.getMinutes();
-            const isDaytime = totalMinutes >= systemService.sunrise && totalMinutes < systemService.sunset;
-            return isDaytime ? "light" : "dark";
-        }
-        return appearance;
-    }
-
-    Settings {
-        category: "System"
-        property alias appearance: systemService.appearance
-        property alias timezone: systemService.timezone
-        property alias latitude: systemService.latitude
-        property alias longitude: systemService.longitude
-        property alias sunrise: systemService.sunrise
-        property alias sunset: systemService.sunset
-    }
-
-    onThemeChanged: Qt.callLater(() => {
-        themeUpdateProc.exec({
-            command: [systemService.scriptsDir + "change-color-theme.sh", theme]
-        });
-    })
-
-    Component.onCompleted: positionSource.update()
-
-    function shutdown() {
-        powerProc.exec(["sh", "-c", "systemctl poweroff"]);
-    }
-    function restart() {
-        powerProc.exec(["sh", "-c", "systemctl reboot"]);
-    }
-    function sleep() {
-        powerProc.exec(["sh", "-c", "systemctl suspend"]);
-    }
+    // TIME
 
     SystemClock {
         id: systemClock
         precision: SystemClock.Minutes
+    }
+
+    readonly property string time: Qt.formatTime(systemClock.date, "HH:mm")
+    readonly property string date: Qt.formatDate(systemClock.date, "dd/MM/yyyy")
+
+    // LOCATION
+
+    property string timezone: "UTC"
+
+    property double latitude: 0.0
+    property double longitude: 0.0
+    property bool isLocationSet: false
+
+    property int sunrise: 480 // Default to 8:00
+    property int sunset: 1080 // Default to 18:00
+
+    function triggerSolarLookup() {
+        const formattedDate = Qt.formatDate(systemClock.date, "dd/MM/yyyy");
+
+        if (!systemService.isLocationSet)
+            return;
+
+        solarLookupProc.exec({
+            command: [systemService.scriptsDir + "solar-lookup/build", "--lat", systemService.latitude, "--lng", systemService.longitude, "--tz", systemService.timezone, "--date", formattedDate]
+        });
+    }
+
+    Process {
+        id: tzLookupProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const timezoneStr = text.trim();
+
+                if (!timezoneStr)
+                    return;
+
+                if (systemService.timezone !== timezoneStr) {
+                    tzUpdateProc.exec({
+                        command: [systemService.scriptsDir + "change-timezone.sh", timezoneStr]
+                    });
+                    systemService.timezone = timezoneStr;
+                }
+
+                systemService.triggerSolarLookup();
+            }
+        }
+    }
+
+    Process {
+        id: tzUpdateProc
+    }
+
+    Process {
+        id: solarLookupProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const [sunriseStr, sunsetStr] = text.trim().split(" ");
+
+                if (!sunriseStr || !sunsetStr)
+                    return;
+
+                const [sunriseH, sunriseM] = sunriseStr.split(":").map(s => parseInt(s));
+                const [sunsetH, sunsetM] = sunsetStr.split(":").map(s => parseInt(s));
+
+                systemService.sunrise = sunriseH * 60 + sunriseM;
+                systemService.sunset = sunsetH * 60 + sunsetM;
+            }
+        }
     }
 
     PositionSource {
@@ -82,6 +102,7 @@ Singleton {
 
             systemService.latitude = coord.latitude;
             systemService.longitude = coord.longitude;
+            systemService.isLocationSet = true;
 
             tzLookupProc.exec({
                 command: [systemService.scriptsDir + "tz-lookup/build", "--lat", coord.latitude, "--lng", coord.longitude]
@@ -89,54 +110,73 @@ Singleton {
         }
     }
 
+    // APPEARANCE
+
+    property string appearance: "system"
+
+    readonly property string theme: {
+        if (appearance === "system") {
+            const totalMinutes = systemClock.date.getHours() * 60 + systemClock.date.getMinutes();
+            const isDaytime = totalMinutes >= systemService.sunrise && totalMinutes < systemService.sunset;
+            return isDaytime ? "light" : "dark";
+        }
+        return appearance;
+    }
+
+    onThemeChanged: Qt.callLater(() => {
+        themeUpdateProc.exec({
+            command: [systemService.scriptsDir + "change-color-theme.sh", theme]
+        });
+    })
+
     Process {
         id: themeUpdateProc
     }
-    Process {
-        id: tzUpdateProc
+
+    // POWER
+
+    function shutdown() {
+        powerProc.exec(["/usr/bin/sh", "-c", "/usr/bin/systemctl poweroff"]);
     }
+    function restart() {
+        powerProc.exec(["/usr/bin/sh", "-c", "/usr/bin/systemctl reboot"]);
+    }
+    function sleep() {
+        powerProc.exec(["/usr/bin/sh", "-c", "/usr/bin/systemctl suspend"]);
+    }
+
     Process {
         id: powerProc
     }
 
-    Process {
-        id: tzLookupProc
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const timezoneStr = text.trim();
-                const formattedDate = Qt.formatDate(systemClock.date, "dd/MM/yyyy");
+    // GENERAL
 
-                if (!timezoneStr)
-                    return;
+    Settings {
+        category: "System"
+        property alias timezone: systemService.timezone
+        property alias latitude: systemService.latitude
+        property alias longitude: systemService.longitude
+        property alias sunrise: systemService.sunrise
+        property alias sunset: systemService.sunset
+        property alias appearance: systemService.appearance
+    }
 
-                if (systemService.timezone !== timezoneStr) {
-                    tzUpdateProc.exec({
-                        command: [systemService.scriptsDir + "change-timezone.sh", timezoneStr]
-                    });
-                    systemService.timezone = timezoneStr;
-                }
-
-                solarLookupProc.exec({
-                    command: [systemService.scriptsDir + "solar-lookup/build", "--lat", systemService.latitude, "--lng", systemService.longitude, "--tz", systemService.timezone, "--date", formattedDate]
-                });
-            }
-        }
+    Component.onCompleted: {
+        systemService.triggerSolarLookup();
+        positionSource.update();
     }
 
     Process {
-        id: solarLookupProc
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const [sunriseStr, sunsetStr] = text.trim().split(" ");
-
-                if (!sunriseStr || !sunsetStr)
+        id: sleepMonitor
+        running: true
+        command: ["dbus-monitor", "--system", "type='signal',sender='org.freedesktop.login1',member='PrepareForSleep'"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (data.trim() !== "boolean false")
                     return;
 
-                const [sunriseH, sunriseM] = sunriseStr.split(":").map(s => parseInt(s));
-                const [sunsetH, sunsetM] = sunsetStr.split(":").map(s => parseInt(s));
-
-                systemService.sunrise = sunriseH * 60 + sunriseM;
-                systemService.sunset = sunsetH * 60 + sunsetM;
+                systemService.triggerSolarLookup();
+                positionSource.update();
             }
         }
     }
