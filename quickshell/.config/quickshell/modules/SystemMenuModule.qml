@@ -85,8 +85,8 @@ MyPopover {
         }
         ListElement {
             type: "appearanceItem"
-            text: "System"
-            value: "system"
+            text: "Adaptive"
+            value: "auto"
         }
         ListElement {
             type: "appearanceItem"

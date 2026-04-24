@@ -112,10 +112,10 @@ Singleton {
 
     // APPEARANCE
 
-    property string appearance: "system"
+    property string appearance: "auto" // "light", "dark", "auto"
 
     readonly property string theme: {
-        if (appearance === "system") {
+        if (appearance === "auto") {
             const totalMinutes = systemClock.date.getHours() * 60 + systemClock.date.getMinutes();
             const isDaytime = totalMinutes >= systemService.sunrise && totalMinutes < systemService.sunset;
             return isDaytime ? "light" : "dark";
