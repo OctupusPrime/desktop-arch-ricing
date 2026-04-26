@@ -25,18 +25,17 @@ Singleton {
 
     property string timezone: "UTC"
 
-    property double latitude: 0.0
-    property double longitude: 0.0
-    property bool isLocationSet: false
+    property double latitude: NaN
+    property double longitude: NaN
 
     property int sunrise: 480 // Default to 8:00
     property int sunset: 1080 // Default to 18:00
 
     function triggerSolarLookup() {
-        const formattedDate = Qt.formatDate(systemClock.date, "dd/MM/yyyy");
-
-        if (!systemService.isLocationSet)
+        if (!isFinite(systemService.latitude) || !isFinite(systemService.longitude))
             return;
+
+        const formattedDate = Qt.formatDate(systemClock.date, "dd/MM/yyyy");
 
         solarLookupProc.exec({
             command: [systemService.scriptsDir + "solar-lookup/build", "--lat", systemService.latitude, "--lng", systemService.longitude, "--tz", systemService.timezone, "--date", formattedDate]
@@ -102,7 +101,6 @@ Singleton {
 
             systemService.latitude = coord.latitude;
             systemService.longitude = coord.longitude;
-            systemService.isLocationSet = true;
 
             tzLookupProc.exec({
                 command: [systemService.scriptsDir + "tz-lookup/build", "--lat", coord.latitude, "--lng", coord.longitude]

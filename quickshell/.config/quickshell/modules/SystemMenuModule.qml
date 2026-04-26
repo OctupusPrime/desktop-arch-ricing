@@ -48,6 +48,28 @@ MyPopover {
 
         ListElement {
             type: "label"
+            text: "Appearance"
+        }
+        ListElement {
+            type: "appearanceItem"
+            text: "Light"
+            value: "light"
+        }
+        ListElement {
+            type: "appearanceItem"
+            text: "Adaptive"
+            value: "auto"
+        }
+        ListElement {
+            type: "appearanceItem"
+            text: "Dark"
+            value: "dark"
+        }
+        ListElement {
+            type: "separator"
+        }
+        ListElement {
+            type: "label"
             text: "System"
         }
         ListElement {
@@ -70,28 +92,6 @@ MyPopover {
             onClicked: function () {
                 SystemService.restart();
             }
-        }
-        ListElement {
-            type: "separator"
-        }
-        ListElement {
-            type: "label"
-            text: "Appearance"
-        }
-        ListElement {
-            type: "appearanceItem"
-            text: "Light"
-            value: "light"
-        }
-        ListElement {
-            type: "appearanceItem"
-            text: "Adaptive"
-            value: "auto"
-        }
-        ListElement {
-            type: "appearanceItem"
-            text: "Dark"
-            value: "dark"
         }
     }
 
