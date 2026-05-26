@@ -46,7 +46,7 @@ ShellRoot {
                         leftMargin: 8
                     }
 
-                    CopilotModule {}
+                    PiAgentModule {}
                 }
 
                 RowLayout {

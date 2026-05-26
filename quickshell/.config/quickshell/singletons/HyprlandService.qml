@@ -9,26 +9,26 @@ Singleton {
     id: hyprlandService
 
     property string keyboardLang: "UNK"
-    property bool copilotCliOpened: false
-    property string copilotCliWindowId: ""
+    property bool piAgentCliOpened: false
+    property string piAgentCliWindowId: ""
 
     Component.onCompleted: {
         keyboardLangProc.running = true;
     }
 
-    function openCopilotCli(rect) {
+    function openPiAgentCli(rect) {
         const safeX = Math.round(Number(rect.x));
         const safeY = Math.round(Number(rect.y));
         const safeW = Math.round(Number(rect.width));
         const safeH = Math.round(Number(rect.height));
-        const cmd = `exec [move ${safeX} ${safeY}; size ${safeW} ${safeH};] kitty --class copilot-cli -o confirm_os_window_close=0 copilot`;
+        const cmd = `exec [move ${safeX} ${safeY}; size ${safeW} ${safeH};] kitty --class pi-agent-cli -o confirm_os_window_close=0 pi`;
 
         Hyprland.dispatch(cmd);
-        // Move cursor to the copilot CLI's position (bottom-left) to ensure it gets focus
+        // Move cursor to the pi-agent CLI's position (bottom-left) to ensure it gets focus
         Hyprland.dispatch(`movecursor ${safeX + 20} ${safeY + safeH - 20}`);
     }
-    function closeCopilotCli() {
-        Hyprland.dispatch("closewindow class:^(copilot-cli)$");
+    function closePiAgentCli() {
+        Hyprland.dispatch("closewindow class:^(pi-agent-cli)$");
     }
 
     function _updateKeyboardLang(layoutString) {
@@ -54,15 +54,15 @@ Singleton {
                     break;
                 case "openwindow":
                     const [openId, , openClass] = eventValue.split(",");
-                    if (openClass === "copilot-cli") {
-                        hyprlandService.copilotCliWindowId = openId;
-                        hyprlandService.copilotCliOpened = true;
+                    if (openClass === "pi-agent-cli") {
+                        hyprlandService.piAgentCliWindowId = openId;
+                        hyprlandService.piAgentCliOpened = true;
                     }
                     break;
                 case "closewindow":
-                    if (eventValue === hyprlandService.copilotCliWindowId) {
-                        hyprlandService.copilotCliWindowId = "";
-                        hyprlandService.copilotCliOpened = false;
+                    if (eventValue === hyprlandService.piAgentCliWindowId) {
+                        hyprlandService.piAgentCliWindowId = "";
+                        hyprlandService.piAgentCliOpened = false;
                     }
                     break;
                 }

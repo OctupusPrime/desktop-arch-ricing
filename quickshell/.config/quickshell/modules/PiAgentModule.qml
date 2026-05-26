@@ -6,16 +6,16 @@ import qs.singletons
 import qs.components
 
 AbstractButton {
-    id: copilotModuleRoot
+    id: piAgentModuleRoot
 
-    property bool isActive: HyprlandService.copilotCliOpened || hovered || pressed
+    property bool isActive: HyprlandService.piAgentCliOpened || hovered || pressed
 
     hoverEnabled: true
     onClicked: {
-        if (HyprlandService.copilotCliOpened) {
-            HyprlandService.closeCopilotCli();
+        if (HyprlandService.piAgentCliOpened) {
+            HyprlandService.closePiAgentCli();
         } else {
-            HyprlandService.openCopilotCli({
+            HyprlandService.openPiAgentCli({
                 x: 8,
                 y: 8,
                 width: 600,
@@ -28,7 +28,7 @@ AbstractButton {
     }
 
     background: Rectangle {
-        color: copilotModuleRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
+        color: piAgentModuleRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
         radius: 10
 
         Behavior on color {
@@ -44,13 +44,13 @@ AbstractButton {
         implicitHeight: 36
 
         MyIcon {
-            visible: !HyprlandService.copilotCliOpened
-            source: "root:/assets/icons/copilot.svg"
+            visible: !HyprlandService.piAgentCliOpened
+            source: "root:/assets/icons/pi-agent.svg"
             anchors.centerIn: parent
         }
 
         MyIcon {
-            visible: HyprlandService.copilotCliOpened
+            visible: HyprlandService.piAgentCliOpened
             source: "root:/assets/icons/x.svg"
             anchors.centerIn: parent
         }
