@@ -33,7 +33,7 @@ Item {
 
             MyIcon {
                 visible: workspacesModuleRoot.hasIcon
-                source: workspacesModuleRoot.hasIcon ? Qt.resolvedUrl(config.workspaces.iconSubs[workspacesModuleRoot.activeId]) : ""
+                source: workspacesModuleRoot.hasIcon ? config.workspaces.iconSubs[workspacesModuleRoot.activeId] : ""
                 Layout.alignment: Qt.AlignHCenter
             }
 

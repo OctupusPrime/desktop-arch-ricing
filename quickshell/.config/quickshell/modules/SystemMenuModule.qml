@@ -36,7 +36,7 @@ MyPopover {
                 implicitHeight: 36
 
                 MyIcon {
-                    source: "root:/assets/icons/arch.svg"
+                    source: icons.arch
                     anchors.centerIn: parent
                 }
             }

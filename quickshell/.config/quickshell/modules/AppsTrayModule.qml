@@ -50,7 +50,7 @@ MyPopover {
                 implicitHeight: 36
 
                 MyIcon {
-                    source: "root:/assets/icons/boxes.svg"
+                    source: icons.boxes
                     anchors.centerIn: parent
                 }
             }

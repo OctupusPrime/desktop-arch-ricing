@@ -10,12 +10,19 @@ ShellRoot {
         id: geistFont
         source: "root:/assets/fonts/Geist.ttf"
     }
+    FontLoader {
+        id: iconsFont
+        source: "root:/assets/fonts/Icons.ttf"
+    }
 
     Theme {
         id: theme
     }
     Config {
         id: config
+    }
+    Icons {
+        id: icons
     }
 
     Variants {

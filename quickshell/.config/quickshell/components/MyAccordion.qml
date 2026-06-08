@@ -7,24 +7,26 @@ Column {
     property real contentPadding: 0
 
     default property list<QtObject> _items
-    property list<Content> _accordionItems: []
 
-    Component.onCompleted: {
+    property list<Content> _accordionItems: {
         let items = [];
+        let indexCounter = 0;
         for (let i = 0; i < _items.length; i++) {
-            if (_items[i] instanceof Content) {
+            if (_items[i] instanceof Content && _items[i].visible) {
                 _items[i]._accordion = accordionRoot;
-                _items[i]._index = items.length;
+                _items[i]._index = indexCounter++;
                 items.push(_items[i]);
             }
         }
-        _accordionItems = items;
+        return items;
     }
 
     function _onItemToggled(index) {
         for (let i = 0; i < _accordionItems.length; i++) {
             if (_accordionItems[i]._index === index) {
-                _accordionItems[i].expanded = !_accordionItems[i].expanded;
+                if (_accordionItems[i].enabled) {
+                    _accordionItems[i].expanded = !_accordionItems[i].expanded;
+                }
             } else if (accordionRoot.type === "single") {
                 _accordionItems[i].expanded = false;
             }
@@ -42,11 +44,14 @@ Column {
         property int _index: -1
         property bool expanded: false
 
+        property bool visible: true
+        property bool enabled: true
+
         property Component triggerDelegate: null
         property Component contentDelegate: null
 
         function toggle() {
-            if (!_accordion)
+            if (!_accordion || !enabled)
                 return;
             _accordion._onItemToggled(_index);
         }
@@ -61,6 +66,9 @@ Column {
             required property var modelData
             required property int index
             property bool isExpanded: modelData.expanded
+
+            enabled: modelData.enabled
+            opacity: enabled ? 1.0 : 0.4
 
             Rectangle {
                 width: parent.width

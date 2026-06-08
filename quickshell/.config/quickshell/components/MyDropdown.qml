@@ -29,7 +29,6 @@ QtObject {
         property bool hasSubMenu: false
         property var buttonType: 0 // 0: normal, 1: checkable, 2: radio
         property var checkState: 0 // 0: unchecked, 1: partially checked, 2: checked
-        property url iconSource: ""
 
         leftPadding: 6
         rightPadding: 6
@@ -57,12 +56,6 @@ QtObject {
             id: contentRow
             spacing: 6
 
-            MyIcon {
-                visible: menuItemRoot.iconSource.toString() !== ""
-                source: menuItemRoot.iconSource
-                color: theme.popoverForeground
-            }
-
             MyText {
                 text: menuItemRoot.text
                 color: theme.popoverForeground
@@ -73,13 +66,13 @@ QtObject {
 
             MyIcon {
                 visible: menuItemRoot.hasSubMenu
-                source: "root:/assets/icons/chevron-right.svg"
+                source: icons.chevronRight
                 size: 16
             }
 
             MyIcon {
                 visible: menuItemRoot.buttonType > 0 && menuItemRoot.checkState > 0
-                source: "root:/assets/icons/check.svg"
+                source: icons.check
                 size: 16
             }
         }

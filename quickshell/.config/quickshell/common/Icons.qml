@@ -1,0 +1,28 @@
+import QtQuick
+
+QtObject {
+    readonly property string x: "\uF101"
+    readonly property string wifi: "\uF102"
+    readonly property string volumeX: "\uF103"
+    readonly property string volume2: "\uF104"
+    readonly property string volume1: "\uF105"
+    readonly property string volume: "\uF106"
+    readonly property string videoOff: "\uF107"
+    readonly property string video: "\uF108"
+    readonly property string sunMedium: "\uF109"
+    readonly property string sunDim: "\uF10A"
+    readonly property string sun: "\uF10B"
+    readonly property string piAgent: "\uF10C"
+    readonly property string music: "\uF10D"
+    readonly property string micOff: "\uF10E"
+    readonly property string mic: "\uF10F"
+    readonly property string gamepad2: "\uF110"
+    readonly property string earth: "\uF111"
+    readonly property string chevronUp: "\uF112"
+    readonly property string chevronRight: "\uF113"
+    readonly property string chevronDown: "\uF114"
+    readonly property string check: "\uF115"
+    readonly property string boxes: "\uF116"
+    readonly property string bluetooth: "\uF117"
+    readonly property string arch: "\uF118"
+}

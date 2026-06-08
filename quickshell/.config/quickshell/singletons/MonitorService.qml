@@ -73,14 +73,6 @@ Singleton {
         property real brightness
         property real queuedBrightness: NaN
 
-        readonly property string brightnessIcon: {
-            if (brightness < 0.33)
-                return "root:/assets/icons/sun-dim.svg";
-            if (brightness < 0.66)
-                return "root:/assets/icons/sun-medium.svg";
-            return "root:/assets/icons/sun.svg";
-        }
-
         readonly property Process initProc: Process {
             stdout: StdioCollector {
                 onStreamFinished: {

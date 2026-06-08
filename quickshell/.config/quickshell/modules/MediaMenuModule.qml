@@ -10,17 +10,58 @@ import qs.components
 MyPopover {
     id: mediaMenuModuleRoot
 
-    readonly property var monitor: MonitorService.getMonitorForScreen(panel.screen)
-
-    property real maxWidth: 280
-    property real maxHeight: Screen.height * 0.6
-
+    readonly property real maxWidth: 280
+    readonly property real maxHeight: Screen.height * 0.6
     hideContentBackground: true
-    onOpenedChanged: {
-        if (mediaMenuModuleRoot.opened)
-            return;
 
-        mediaAccordion.collapseAll();
+    // Sinks
+
+    readonly property bool hasSinks: MediaService.sinks.length > 0
+    readonly property string sinkIcon: {
+        if (!hasSinks)
+            return icons.volumeX;
+        if (MediaService.sinkMuted || MediaService.sinkVolume === 0)
+            return icons.volumeX;
+        if (MediaService.sinkVolume < 0.33)
+            return icons.volume;
+        if (MediaService.sinkVolume < 0.66)
+            return icons.volume1;
+        return icons.volume2;
+    }
+
+    // Sources
+
+    readonly property bool hasSources: MediaService.sources.length > 0
+    readonly property string sourceIcon: {
+        if (!hasSources)
+            return icons.micOff;
+        if (MediaService.sourceMuted || MediaService.sourceVolume === 0)
+            return icons.micOff;
+        return icons.mic;
+    }
+
+    // Videos
+
+    readonly property bool hasVideo: MediaService.video !== null
+    readonly property string videoIcon: {
+        if (!hasVideo)
+            return icons.videoOff;
+        if (MediaService.videoMuted)
+            return icons.videoOff;
+        return icons.video;
+    }
+
+    // Monitor
+
+    readonly property var monitor: MonitorService.getMonitorForScreen(panel.screen)
+    readonly property string brightnessIcon: {
+        if (!monitor)
+            return icons.sunDim;
+        if (monitor.brightness < 0.33)
+            return icons.sunDim;
+        if (monitor.brightness < 0.66)
+            return icons.sunMedium;
+        return icons.sun;
     }
 
     MyPopover.Anchor {
@@ -57,7 +98,8 @@ MyPopover {
 
                     MyIcon {
                         size: 18
-                        source: MediaService.sinkIcon
+                        source: mediaMenuModuleRoot.sinkIcon
+                        opacity: mediaMenuModuleRoot.hasSinks ? 1 : 0.5
                         anchors.centerIn: parent
                     }
                 }
@@ -66,6 +108,8 @@ MyPopover {
                     id: sourceTrackerRoot
                     implicitWidth: 22
                     implicitHeight: 22
+
+                    visible: mediaMenuModuleRoot.hasSources
 
                     PwNodeLinkTracker {
                         id: sourceLinkTracker
@@ -82,7 +126,7 @@ MyPopover {
 
                     MyIcon {
                         size: 18
-                        source: MediaService.sourceIcon
+                        source: mediaMenuModuleRoot.sourceIcon
                         color: sourceTrackerRoot.inUse ? theme.primaryForeground : theme.foreground
                         anchors.centerIn: parent
                     }
@@ -92,6 +136,8 @@ MyPopover {
                     id: videoTrackerRoot
                     implicitWidth: 22
                     implicitHeight: 22
+
+                    visible: mediaMenuModuleRoot.hasVideo
 
                     PwNodeLinkTracker {
                         id: videoLinkTracker
@@ -108,7 +154,7 @@ MyPopover {
 
                     MyIcon {
                         size: 18
-                        source: MediaService.videoIcon
+                        source: mediaMenuModuleRoot.videoIcon
                         color: videoTrackerRoot.inUse ? theme.primaryForeground : theme.foreground
                         anchors.centerIn: parent
                     }
@@ -121,7 +167,6 @@ MyPopover {
         Item {
             width: mediaMenuModuleRoot.maxWidth
             height: mediaMenuModuleRoot.maxHeight
-
             Item {
                 width: mediaMenuModuleRoot.maxWidth
                 height: Math.min(contentContainer.implicitHeight, mediaMenuModuleRoot.maxHeight)
@@ -157,7 +202,7 @@ MyPopover {
 
                                         MyIcon {
                                             size: 18
-                                            source: mediaMenuModuleRoot.monitor.brightnessIcon
+                                            source: mediaMenuModuleRoot.brightnessIcon
                                         }
 
                                         MySlider {
@@ -190,13 +235,15 @@ MyPopover {
                             MyAccordion.Content {
                                 id: sinkAccordionItem
 
+                                enabled: mediaMenuModuleRoot.hasSinks
+
                                 triggerDelegate: Component {
                                     RowLayout {
                                         spacing: 6
 
                                         MyIcon {
                                             size: 18
-                                            source: MediaService.sinkIcon
+                                            source: mediaMenuModuleRoot.sinkIcon
                                         }
 
                                         MySlider {
@@ -233,13 +280,15 @@ MyPopover {
                             MyAccordion.Content {
                                 id: sourceAccordionItem
 
+                                visible: mediaMenuModuleRoot.hasSources
+
                                 triggerDelegate: Component {
                                     RowLayout {
                                         spacing: 6
 
                                         MyIcon {
                                             size: 18
-                                            source: MediaService.sourceIcon
+                                            source: mediaMenuModuleRoot.sourceIcon
                                         }
 
                                         MySlider {
@@ -279,30 +328,37 @@ MyPopover {
                             width: parent.width
                             height: 1
                             color: theme.border
+
+                            visible: mediaMenuModuleRoot.hasSources || mediaMenuModuleRoot.hasVideo
                         }
 
                         WrapperItem {
                             margin: 10
                             width: parent.width
 
+                            visible: mediaMenuModuleRoot.hasSources || mediaMenuModuleRoot.hasVideo
+
                             RowLayout {
                                 spacing: 10
 
                                 MyButton {
                                     text: "Microphone"
-                                    iconSource: "root:/assets/icons/mic.svg"
+                                    iconSource: icons.mic
                                     variant: MediaService.sourceMuted ? "secondary" : "primary"
                                     onClicked: MediaService.toggleSourceMute()
+
+                                    visible: mediaMenuModuleRoot.hasSources
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
                                 }
                                 MyButton {
                                     text: "Camera"
-                                    iconSource: "root:/assets/icons/video.svg"
-                                    variant: MediaService.videoMuted || !MediaService.video ? "secondary" : "primary"
+                                    iconSource: icons.video
+                                    variant: MediaService.videoMuted ? "secondary" : "primary"
                                     onClicked: MediaService.toggleVideoMute()
-                                    enabled: MediaService.video !== null
+
+                                    visible: mediaMenuModuleRoot.hasVideo
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
@@ -333,7 +389,7 @@ MyPopover {
             contentItem: Item {
                 MyIcon {
                     size: 18
-                    source: ref.expanded ? "root:/assets/icons/chevron-up.svg" : "root:/assets/icons/chevron-down.svg"
+                    source: ref.expanded ? icons.chevronUp : icons.chevronDown
                     anchors.centerIn: parent
                 }
             }

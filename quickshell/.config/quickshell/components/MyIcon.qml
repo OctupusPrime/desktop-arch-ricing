@@ -1,28 +1,13 @@
 import QtQuick
-import QtQuick.Effects
 
-Item {
-    id: iconRoot
+Text {
+    id: textRoot
 
-    required property var source
-    property int size: 24
-    property color color: theme.foreground
+    required property string source
+    property var size: 24
 
-    implicitWidth: size
-    implicitHeight: size
-
-    Image {
-        anchors.fill: parent
-        source: iconRoot.source
-
-        sourceSize.width: iconRoot.size
-        sourceSize.height: iconRoot.size
-        fillMode: Image.PreserveAspectFit
-
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            colorization: 1
-            colorizationColor: iconRoot.color
-        }
-    }
+    text: source
+    font.family: 'Icons'
+    font.pixelSize: size
+    color: theme.foreground
 }

@@ -5,8 +5,7 @@ import Quickshell.Services.Pipewire
 import Quickshell.Io
 import QtQuick
 
-// TODO check if cameras are working
-// TODO add support to enable/disable cameras (need a real camera to test)
+// TODO check if cameras are working enable disable working, need a real camera to test
 Singleton {
     id: mediaService
 
@@ -46,37 +45,15 @@ Singleton {
     readonly property bool sourceMuted: !!source?.audio?.muted
     property bool videoMuted: false
 
-    readonly property string sinkIcon: {
-        if (sinkMuted || sinkVolume === 0)
-            return "root:/assets/icons/volume-x.svg";
-        if (sinkVolume < 0.33)
-            return "root:/assets/icons/volume.svg";
-        if (sinkVolume < 0.66)
-            return "root:/assets/icons/volume-1.svg";
-        return "root:/assets/icons/volume-2.svg";
-    }
-    readonly property string sourceIcon: {
-        if (sourceMuted || sourceVolume === 0)
-            return "root:/assets/icons/mic-off.svg";
-        return "root:/assets/icons/mic.svg";
-    }
-    readonly property string videoIcon: {
-        if (videoMuted)
-            return "root:/assets/icons/video-off.svg";
-        return "root:/assets/icons/video.svg";
-    }
-
     function setSinkVolume(newVolume: real): void {
         if (sink?.ready && sink?.audio) {
             sink.audio.muted = false;
             sink.audio.volume = Math.max(0, Math.min(1, newVolume));
         }
     }
-
     function incrementSinkVolume(amount: real): void {
         setSinkVolume(sinkVolume + (amount || 0.1));
     }
-
     function decrementSinkVolume(amount: real): void {
         setSinkVolume(sinkVolume - (amount || 0.1));
     }
@@ -87,11 +64,9 @@ Singleton {
             source.audio.volume = Math.max(0, Math.min(1, newVolume));
         }
     }
-
     function incrementSourceVolume(amount: real): void {
         setSourceVolume(sourceVolume + (amount || 0.1));
     }
-
     function decrementSourceVolume(amount: real): void {
         setSourceVolume(sourceVolume - (amount || 0.1));
     }
@@ -108,12 +83,10 @@ Singleton {
         if (source?.ready && source?.audio)
             source.audio.muted = true;
     }
-
     function unmuteSource(): void {
         if (source?.ready && source?.audio)
             source.audio.muted = false;
     }
-
     function toggleSourceMute(): void {
         if (sourceMuted)
             unmuteSource();
@@ -134,7 +107,6 @@ Singleton {
 
         videoMuted = true;
     }
-
     function unmuteVideo(): void {
         if (!video)
             return;
@@ -144,7 +116,6 @@ Singleton {
 
         videoMuted = false;
     }
-
     function toggleVideoMute(): void {
         if (videoMuted)
             unmuteVideo();

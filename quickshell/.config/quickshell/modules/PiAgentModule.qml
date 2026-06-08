@@ -1,4 +1,3 @@
-import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Controls
 
@@ -23,9 +22,6 @@ AbstractButton {
             });
         }
     }
-    onHoveredChanged: {
-        focusGrab.active = hovered;
-    }
 
     background: Rectangle {
         color: piAgentModuleRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
@@ -45,20 +41,14 @@ AbstractButton {
 
         MyIcon {
             visible: !HyprlandService.piAgentCliOpened
-            source: "root:/assets/icons/pi-agent.svg"
+            source: icons.piAgent
             anchors.centerIn: parent
         }
 
         MyIcon {
             visible: HyprlandService.piAgentCliOpened
-            source: "root:/assets/icons/x.svg"
+            source: icons.x
             anchors.centerIn: parent
         }
-    }
-
-    HyprlandFocusGrab {
-        id: focusGrab
-
-        windows: [panel]
     }
 }

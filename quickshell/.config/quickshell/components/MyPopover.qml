@@ -7,7 +7,10 @@ Item {
 
     property bool opened: false
     property bool _isExiting: false
+
     property bool hideContentBackground: false
+    property bool hasActiveChild: false
+    property var activePopup: null
 
     function open() {
         popoverRoot.opened = true;
@@ -87,83 +90,86 @@ Item {
 
     LazyLoader {
         id: popupLoader
-
         active: popoverRoot.opened
 
-        PopupWindow {
-            visible: true
-            // Offsets of shadow
-            implicitWidth: contentContainer.implicitWidth + 40
-            implicitHeight: contentContainer.implicitHeight + 16
-            color: "transparent"
-            anchor {
-                window: panel
-                edges: Edges.Bottom
-                gravity: Edges.Top
-                rect: {
-                    const anchorPos = popoverRoot._anchor.mapToItem(panel.contentItem, 0, 0);
-                    return Qt.rect(anchorPos.x, 0, popoverRoot._anchor.width, 0);
+        QtObject {
+            property var focusGrab: HyprlandFocusGrab {
+                windows: popoverRoot.activePopup ? [popoverRoot.activePopup] : []
+                active: popoverRoot.opened && !popoverRoot._isExiting && !popoverRoot.hasActiveChild
+                onCleared: {
+                    if (popoverRoot.hasActiveChild)
+                        return;
+                    popoverRoot.close();
                 }
             }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: popoverRoot.close()
-            }
+            property var window: PopupWindow {
+                id: popoverPopup
 
-            Item {
-                id: contentContainer
-
-                implicitWidth: popoverRoot._content ? popoverRoot._content.implicitWidth : 100
-                implicitHeight: popoverRoot._content ? popoverRoot._content.implicitHeight : 100
-                opacity: 0
-                scale: 0.95
-                anchors.centerIn: parent
-                transformOrigin: Item.Bottom
-
-                states: [
-                    State {
-                        name: "visible"
-                        when: popoverRoot.opened && !popoverRoot._isExiting
-                        PropertyChanges {
-                            contentContainer {
-                                opacity: 1
-                                scale: 1
-                            }
-                        }
-                    },
-                    State {
-                        name: "hidden"
-                        when: popoverRoot._isExiting
-                        PropertyChanges {
-                            contentContainer {
-                                opacity: 0
-                                scale: 0.95
-                            }
-                        }
+                visible: true
+                // Offsets of shadow
+                implicitWidth: contentContainer.implicitWidth + 40
+                implicitHeight: contentContainer.implicitHeight + 16
+                color: "transparent"
+                anchor {
+                    window: panel
+                    edges: Edges.Bottom
+                    gravity: Edges.Top
+                    rect: {
+                        const anchorPos = popoverRoot._anchor.mapToItem(panel.contentItem, 0, 0);
+                        return Qt.rect(anchorPos.x, 0, popoverRoot._anchor.width, 0);
                     }
-                ]
+                }
 
-                transitions: [
-                    Transition {
-                        from: "*"
-                        to: "visible" // On Entry
-                        ParallelAnimation {
-                            NumberAnimation {
-                                property: "opacity"
-                                duration: 200
+                Component.onCompleted: popoverRoot.activePopup = popoverPopup
+                Component.onDestruction: popoverRoot.activePopup = null
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        if (popoverRoot.hasActiveChild)
+                            return;
+                        popoverRoot.close();
+                    }
+                }
+
+                Item {
+                    id: contentContainer
+
+                    implicitWidth: popoverRoot._content ? popoverRoot._content.implicitWidth : 100
+                    implicitHeight: popoverRoot._content ? popoverRoot._content.implicitHeight : 100
+                    opacity: 0
+                    scale: 0.95
+                    anchors.centerIn: parent
+                    transformOrigin: Item.Bottom
+
+                    states: [
+                        State {
+                            name: "visible"
+                            when: popoverRoot.opened && !popoverRoot._isExiting
+                            PropertyChanges {
+                                contentContainer {
+                                    opacity: 1
+                                    scale: 1
+                                }
                             }
-                            NumberAnimation {
-                                property: "scale"
-                                duration: 250
-                                easing.type: Easing.OutBack
+                        },
+                        State {
+                            name: "hidden"
+                            when: popoverRoot._isExiting
+                            PropertyChanges {
+                                contentContainer {
+                                    opacity: 0
+                                    scale: 0.95
+                                }
                             }
                         }
-                    },
-                    Transition {
-                        from: "visible"
-                        to: "hidden" // On Exit
-                        SequentialAnimation {
+                    ]
+
+                    transitions: [
+                        Transition {
+                            from: "*"
+                            to: "visible" // On Entry
                             ParallelAnimation {
                                 NumberAnimation {
                                     property: "opacity"
@@ -172,35 +178,46 @@ Item {
                                 NumberAnimation {
                                     property: "scale"
                                     duration: 250
-                                    easing.type: Easing.OutCubic
+                                    easing.type: Easing.OutBack
                                 }
                             }
-                            NumberAnimation {
-                                duration: 100
-                            } // Pause to ensure smoothness
-                            ScriptAction {
-                                script: popoverRoot.terminate()
+                        },
+                        Transition {
+                            from: "visible"
+                            to: "hidden" // On Exit
+                            SequentialAnimation {
+                                ParallelAnimation {
+                                    NumberAnimation {
+                                        property: "opacity"
+                                        duration: 200
+                                    }
+                                    NumberAnimation {
+                                        property: "scale"
+                                        duration: 250
+                                        easing.type: Easing.OutCubic
+                                    }
+                                }
+                                NumberAnimation {
+                                    duration: 100
+                                } // Pause to ensure smoothness
+                                ScriptAction {
+                                    script: popoverRoot.terminate()
+                                }
                             }
                         }
+                    ]
+
+                    Background {
+                        visible: !popoverRoot.hideContentBackground
                     }
-                ]
 
-                Background {
-                    visible: !popoverRoot.hideContentBackground
-                }
-
-                Binding {
-                    target: popoverRoot._content
-                    property: "parent"
-                    value: contentContainer
+                    Binding {
+                        target: popoverRoot._content
+                        property: "parent"
+                        value: contentContainer
+                    }
                 }
             }
         }
-    }
-
-    HyprlandFocusGrab {
-        windows: [popupLoader.item]
-        active: popoverRoot.opened && !popoverRoot._isExiting
-        onCleared: popoverRoot.close()
     }
 }
