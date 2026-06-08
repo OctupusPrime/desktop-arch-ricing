@@ -124,6 +124,6 @@ Singleton {
     }
 
     PwObjectTracker {
-        objects: [...mediaService.sinks, ...mediaService.sources, ...mediaService.videos]
+        objects: Pipewire.nodes.values
     }
 }

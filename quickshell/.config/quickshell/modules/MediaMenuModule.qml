@@ -111,12 +111,12 @@ MyPopover {
 
                     visible: mediaMenuModuleRoot.hasSources
 
-                    PwNodeLinkTracker {
-                        id: sourceLinkTracker
-                        node: MediaService.source
+                    property bool inUse: {
+                        const node = MediaService.source;
+                        if (!node)
+                            return false;
+                        return Pipewire.linkGroups.values.some(g => (g.source && g.source.id === node.id) || (g.target && g.target.id === node.id));
                     }
-
-                    property bool inUse: sourceLinkTracker.linkGroups.length > 0
 
                     Rectangle {
                         anchors.fill: parent
@@ -139,12 +139,12 @@ MyPopover {
 
                     visible: mediaMenuModuleRoot.hasVideo
 
-                    PwNodeLinkTracker {
-                        id: videoLinkTracker
-                        node: MediaService.video
+                    property bool inUse: {
+                        const node = MediaService.video;
+                        if (!node)
+                            return false;
+                        return Pipewire.linkGroups.values.some(g => (g.source && g.source.id === node.id) || (g.target && g.target.id === node.id));
                     }
-
-                    property bool inUse: videoLinkTracker.linkGroups.length > 0
 
                     Rectangle {
                         anchors.fill: parent
