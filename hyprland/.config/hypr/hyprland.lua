@@ -117,8 +117,8 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    name = "pi-agent-cli-float",
-    match = { class = "^(pi-agent-cli)$" },
+    name = "ai-agent-cli-float",
+    match = { class = "^(ai-agent-cli)$" },
     animation = "slide left",
     float = true,
     pin = true,

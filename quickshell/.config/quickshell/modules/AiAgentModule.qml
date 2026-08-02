@@ -5,26 +5,28 @@ import qs.singletons
 import qs.components
 
 AbstractButton {
-    id: piAgentModuleRoot
+    id: aiAgentModuleRoot
 
-    property bool isActive: HyprlandService.piAgentCliOpened || hovered || pressed
+    readonly property string agentCommand: "codex"
+    property bool isActive: HyprlandService.aiAgentCliWindowId || hovered || pressed
 
     hoverEnabled: true
     onClicked: {
-        if (HyprlandService.piAgentCliOpened) {
-            HyprlandService.closePiAgentCli();
-        } else {
-            HyprlandService.openPiAgentCli({
+        if (!HyprlandService.aiAgentCliWindowId) {
+            HyprlandService.openAiAgentCli({
                 x: 8,
                 y: 8,
                 width: 600,
                 height: Screen.height - panel.height - 16
-            });
+            }, agentCommand);
+
+            return;
         }
+        HyprlandService.closeAiAgentCli();
     }
 
     background: Rectangle {
-        color: piAgentModuleRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
+        color: aiAgentModuleRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
         radius: 10
 
         Behavior on color {
@@ -40,13 +42,13 @@ AbstractButton {
         implicitHeight: 36
 
         MyIcon {
-            visible: !HyprlandService.piAgentCliOpened
-            source: icons.piAgent
+            visible: !HyprlandService.aiAgentCliWindowId
+            source: icons.aiAgent
             anchors.centerIn: parent
         }
 
         MyIcon {
-            visible: HyprlandService.piAgentCliOpened
+            visible: HyprlandService.aiAgentCliWindowId
             source: icons.x
             anchors.centerIn: parent
         }

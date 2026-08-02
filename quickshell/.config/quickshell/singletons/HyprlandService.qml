@@ -9,26 +9,30 @@ Singleton {
     id: hyprlandService
 
     property string keyboardLang: "UNK"
-    property bool piAgentCliOpened: false
-    property string piAgentCliWindowId: ""
+
+    property var aiAgentCliWindowId: null
 
     Component.onCompleted: {
         keyboardLangProc.running = true;
     }
 
-    function openPiAgentCli(rect) {
+    function openAiAgentCli(rect, agentCommand) {
         const safeX = Math.round(Number(rect.x));
         const safeY = Math.round(Number(rect.y));
         const safeW = Math.round(Number(rect.width));
         const safeH = Math.round(Number(rect.height));
-        const cmd = `exec [move ${safeX} ${safeY}; size ${safeW} ${safeH};] kitty --class pi-agent-cli -o confirm_os_window_close=0 pi`;
+        const safeAgentCommand = String(agentCommand ?? "").trim();
 
-        Hyprland.dispatch(cmd);
-        // Move cursor to the pi-agent CLI's position (bottom-left) to ensure it gets focus
-        Hyprland.dispatch(`movecursor ${safeX + 20} ${safeY + safeH - 20}`);
+        if (!safeAgentCommand) {
+            console.warn("Cannot open AI agent CLI without an agent command");
+            return;
+        }
+
+        const command = `kitty --class ai-agent-cli -o confirm_os_window_close=0 ${safeAgentCommand}`;
+        Hyprland.dispatch(`hl.dsp.exec_cmd(${JSON.stringify(command)}, { move = { ${safeX}, ${safeY} }, size = { ${safeW}, ${safeH} } })`);
     }
-    function closePiAgentCli() {
-        Hyprland.dispatch("closewindow class:^(pi-agent-cli)$");
+    function closeAiAgentCli() {
+        Hyprland.dispatch(`hl.dsp.window.close({ window = "class:^(ai-agent-cli)$" })`);
     }
 
     function _updateKeyboardLang(layoutString) {
@@ -54,15 +58,13 @@ Singleton {
                     break;
                 case "openwindow":
                     const [openId, , openClass] = eventValue.split(",");
-                    if (openClass === "pi-agent-cli") {
-                        hyprlandService.piAgentCliWindowId = openId;
-                        hyprlandService.piAgentCliOpened = true;
+                    if (openClass === "ai-agent-cli") {
+                        hyprlandService.aiAgentCliWindowId = openId;
                     }
                     break;
                 case "closewindow":
-                    if (eventValue === hyprlandService.piAgentCliWindowId) {
-                        hyprlandService.piAgentCliWindowId = "";
-                        hyprlandService.piAgentCliOpened = false;
+                    if (eventValue === hyprlandService.aiAgentCliWindowId) {
+                        hyprlandService.aiAgentCliWindowId = null;
                     }
                     break;
                 }

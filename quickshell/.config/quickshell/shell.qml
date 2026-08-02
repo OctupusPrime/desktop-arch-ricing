@@ -53,7 +53,7 @@ ShellRoot {
                         leftMargin: 8
                     }
 
-                    PiAgentModule {}
+                    AiAgentModule {}
                 }
 
                 RowLayout {
