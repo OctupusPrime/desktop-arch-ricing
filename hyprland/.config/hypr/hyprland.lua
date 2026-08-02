@@ -126,6 +126,13 @@ hl.window_rule({
 })
 
 -- Special workspaces.
+
+hl.window_rule({
+    name = "switch-steam-games-to-gaming-workspace",
+    match = { initial_class = "^steam_app_[0-9]+$" },
+    workspace = 2,
+})
+
 hl.window_rule({
     name = "switch-to-browser",
     match = { class = "^([Zz]en.*)$" },
