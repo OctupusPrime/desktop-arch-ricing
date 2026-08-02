@@ -12,7 +12,14 @@ MyPopover {
 
     readonly property real maxWidth: 280
     readonly property real maxHeight: Screen.height * 0.6
+
     hideContentBackground: true
+    onOpenedChanged: {
+        if (mediaMenuModuleRoot.opened)
+            return;
+
+        mediaAccordion.collapseAll();
+    }
 
     // Sinks
 
