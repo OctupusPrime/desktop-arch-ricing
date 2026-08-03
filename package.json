@@ -1,0 +1,14 @@
+{
+  "name": "desktop-arch-ricing",
+  "private": true,
+  "scripts": {
+    "install": "npm run install:icons && npm run install:solar-lookup && npm run install:tz-lookup",
+    "install:icons": "bun install --cwd tools/fantasticon",
+    "install:solar-lookup": "go -C tools/solar-lookup mod download",
+    "install:tz-lookup": "go -C tools/tz-lookup mod download",
+    "build": "npm run build:solar-lookup && npm run build:tz-lookup && npm run build:icons",
+    "build:icons": "bun run --cwd tools/fantasticon index.ts",
+    "build:solar-lookup": "go build -C tools/solar-lookup -o ../../scripts/.config/scripts/solar-lookup .",
+    "build:tz-lookup": "go build -C tools/tz-lookup -o ../../scripts/.config/scripts/tz-lookup ."
+  }
+}

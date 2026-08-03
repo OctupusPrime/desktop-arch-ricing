@@ -1,1 +1,13 @@
-node_modules
+# JavaScript dependencies
+node_modules/
+
+# Temporary generator output
+/tools/fantasticon/output/
+
+# Go binaries built without an explicit output path
+/tools/solar-lookup/solar-lookup
+/tools/tz-lookup/tz-lookup
+
+# Python bytecode
+__pycache__/
+*.py[cod]

@@ -38,7 +38,7 @@ Singleton {
         const formattedDate = Qt.formatDate(systemClock.date, "dd/MM/yyyy");
 
         solarLookupProc.exec({
-            command: [systemService.scriptsDir + "solar-lookup/build", "--lat", systemService.latitude, "--lng", systemService.longitude, "--tz", systemService.timezone, "--date", formattedDate]
+            command: [systemService.scriptsDir + "solar-lookup", "--lat", systemService.latitude, "--lng", systemService.longitude, "--tz", systemService.timezone, "--date", formattedDate]
         });
     }
 
@@ -103,7 +103,7 @@ Singleton {
             systemService.longitude = coord.longitude;
 
             tzLookupProc.exec({
-                command: [systemService.scriptsDir + "tz-lookup/build", "--lat", coord.latitude, "--lng", coord.longitude]
+                command: [systemService.scriptsDir + "tz-lookup", "--lat", coord.latitude, "--lng", coord.longitude]
             });
         }
     }
