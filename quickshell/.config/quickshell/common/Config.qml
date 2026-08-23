@@ -11,11 +11,5 @@ QtObject {
         }
     }
 
-    readonly property QtObject workspaces: QtObject {
-        readonly property var iconSubs: {
-            10: "\uF111",
-            11: "\uF10D",
-            12: "\uF110"
-        }
-    }
+    // TODO: move back all config that end user will can change to here like workspace icons
 }

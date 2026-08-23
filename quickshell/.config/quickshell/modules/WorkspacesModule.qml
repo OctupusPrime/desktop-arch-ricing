@@ -7,11 +7,18 @@ import qs.components
 Item {
     id: workspacesModuleRoot
 
-    width: 108
-    height: 24
+    implicitWidth: 108
+    implicitHeight: 24
 
-    readonly property int activeId: Hyprland.focusedWorkspace?.id ?? 1
-    readonly property bool hasIcon: activeId in config.workspaces.iconSubs
+    readonly property var iconByWorkspaceId: ({
+            10: icons.earth,
+            11: icons.music,
+            12: icons.gamepad2
+        })
+
+    readonly property int activeWorkspaceId: Hyprland.focusedWorkspace?.id ?? 1
+    readonly property string activeIcon: iconByWorkspaceId[activeWorkspaceId] ?? ""
+    readonly property bool showsIcon: activeIcon.length > 0
 
     RowLayout {
         anchors.fill: parent
@@ -24,21 +31,21 @@ Item {
         RowLayout {
             spacing: 8
 
-            Layout.preferredWidth: workspacesModuleRoot.activeId === 2 || workspacesModuleRoot.activeId === 3 ? 76 : 24
+            Layout.preferredWidth: workspacesModuleRoot.activeWorkspaceId === 2 || workspacesModuleRoot.activeWorkspaceId === 3 ? 76 : 24
 
             WorkspaceDot {
-                visible: !workspacesModuleRoot.hasIcon
+                visible: !workspacesModuleRoot.showsIcon
                 wsId: 2
             }
 
             MyIcon {
-                visible: workspacesModuleRoot.hasIcon
-                source: workspacesModuleRoot.hasIcon ? config.workspaces.iconSubs[workspacesModuleRoot.activeId] : ""
+                visible: workspacesModuleRoot.showsIcon
+                source: workspacesModuleRoot.activeIcon
                 Layout.alignment: Qt.AlignHCenter
             }
 
             WorkspaceDot {
-                visible: !workspacesModuleRoot.hasIcon
+                visible: !workspacesModuleRoot.showsIcon
                 wsId: 3
             }
 
@@ -59,7 +66,7 @@ Item {
         id: workDotRoot
 
         required property int wsId
-        readonly property bool isActive: workspacesModuleRoot.activeId === wsId
+        readonly property bool isActive: workspacesModuleRoot.activeWorkspaceId === wsId
 
         height: 8
         radius: 8

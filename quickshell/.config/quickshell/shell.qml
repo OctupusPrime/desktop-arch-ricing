@@ -80,6 +80,8 @@ ShellRoot {
                         rightMargin: 6
                     }
 
+                    ConnectionMenuModule {}
+
                     MediaMenuModule {}
 
                     KeyboardModule {}
