@@ -15,7 +15,23 @@ Singleton {
 
     SystemClock {
         id: systemClock
+
         precision: SystemClock.Minutes
+
+        property double lastTick: 0
+
+        onDateChanged: {
+            const now = date.getTime();
+            const resumed = lastTick > 0 && now - lastTick > 120000;
+
+            // Waked up from sleep after 2 minutes
+            if (resumed) {
+                systemService.triggerSolarLookup();
+                positionSource.update();
+            }
+
+            lastTick = now;
+        }
     }
 
     readonly property string time: Qt.formatTime(systemClock.date, "HH:mm")
@@ -27,6 +43,53 @@ Singleton {
 
     property double latitude: NaN
     property double longitude: NaN
+
+    Process {
+        id: tzLookupProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const timezoneStr = text.trim();
+
+                if (!timezoneStr)
+                    return;
+
+                if (systemService.timezone !== timezoneStr) {
+                    systemService.timezone = timezoneStr;
+
+                    Quickshell.execDetached([systemService.scriptsDir + "change-timezone.sh", timezoneStr]);
+                }
+
+                systemService.triggerSolarLookup();
+            }
+        }
+    }
+
+    PositionSource {
+        id: positionSource
+        active: false
+        onPositionChanged: {
+            const coord = position.coordinate;
+
+            if (!coord.isValid) {
+                console.warn("Invalid coordinates received from PositionSource");
+                return;
+            }
+
+            const moved = !isFinite(systemService.latitude) || !isFinite(systemService.longitude) || Math.abs(systemService.latitude - coord.latitude) > 0.01 || Math.abs(systemService.longitude - coord.longitude) > 0.01;
+
+            if (!moved)
+                return;
+
+            systemService.latitude = coord.latitude;
+            systemService.longitude = coord.longitude;
+
+            tzLookupProc.exec({
+                command: [systemService.scriptsDir + "tz-lookup", "--lat", coord.latitude, "--lng", coord.longitude]
+            });
+        }
+    }
+
+    // SOLAR
 
     property int sunrise: 480 // Default to 8:00
     property int sunset: 1080 // Default to 18:00
@@ -40,31 +103,6 @@ Singleton {
         solarLookupProc.exec({
             command: [systemService.scriptsDir + "solar-lookup", "--lat", systemService.latitude, "--lng", systemService.longitude, "--tz", systemService.timezone, "--date", formattedDate]
         });
-    }
-
-    Process {
-        id: tzLookupProc
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const timezoneStr = text.trim();
-
-                if (!timezoneStr)
-                    return;
-
-                if (systemService.timezone !== timezoneStr) {
-                    tzUpdateProc.exec({
-                        command: [systemService.scriptsDir + "change-timezone.sh", timezoneStr]
-                    });
-                    systemService.timezone = timezoneStr;
-                }
-
-                systemService.triggerSolarLookup();
-            }
-        }
-    }
-
-    Process {
-        id: tzUpdateProc
     }
 
     Process {
@@ -85,66 +123,32 @@ Singleton {
         }
     }
 
-    PositionSource {
-        id: positionSource
-        active: false
-        onPositionChanged: {
-            const coord = position.coordinate;
-
-            if (!coord.isValid) {
-                console.warn("Invalid coordinates received from PositionSource");
-                return;
-            }
-
-            if (systemService.latitude === coord.latitude && systemService.longitude === coord.longitude)
-                return;
-
-            systemService.latitude = coord.latitude;
-            systemService.longitude = coord.longitude;
-
-            tzLookupProc.exec({
-                command: [systemService.scriptsDir + "tz-lookup", "--lat", coord.latitude, "--lng", coord.longitude]
-            });
-        }
-    }
-
     // APPEARANCE
 
     property string appearance: "auto" // "light", "dark", "auto"
 
     readonly property string theme: {
-        if (appearance === "auto") {
-            const totalMinutes = systemClock.date.getHours() * 60 + systemClock.date.getMinutes();
-            const isDaytime = totalMinutes >= systemService.sunrise && totalMinutes < systemService.sunset;
-            return isDaytime ? "light" : "dark";
-        }
-        return appearance;
+        if (appearance !== "auto")
+            return appearance;
+
+        const minutes = systemClock.hours * 60 + systemClock.minutes;
+        return minutes >= sunrise && minutes < sunset ? "light" : "dark";
     }
 
     onThemeChanged: Qt.callLater(() => {
-        themeUpdateProc.exec({
-            command: [systemService.scriptsDir + "change-color-theme.sh", theme]
-        });
+        Quickshell.execDetached([systemService.scriptsDir + "change-color-theme.sh", theme]);
     })
-
-    Process {
-        id: themeUpdateProc
-    }
 
     // POWER
 
-    function shutdown() {
-        powerProc.exec(["/usr/bin/sh", "-c", "/usr/bin/systemctl poweroff"]);
+    function shutdown(): void {
+        Quickshell.execDetached(["systemctl", "poweroff"]);
     }
-    function restart() {
-        powerProc.exec(["/usr/bin/sh", "-c", "/usr/bin/systemctl reboot"]);
+    function restart(): void {
+        Quickshell.execDetached(["systemctl", "reboot"]);
     }
-    function sleep() {
-        powerProc.exec(["/usr/bin/sh", "-c", "/usr/bin/systemctl suspend"]);
-    }
-
-    Process {
-        id: powerProc
+    function sleep(): void {
+        Quickshell.execDetached(["systemctl", "suspend"]);
     }
 
     // GENERAL
@@ -162,20 +166,5 @@ Singleton {
     Component.onCompleted: {
         systemService.triggerSolarLookup();
         positionSource.update();
-    }
-
-    Process {
-        id: sleepMonitor
-        running: true
-        command: ["dbus-monitor", "--system", "type='signal',sender='org.freedesktop.login1',member='PrepareForSleep'"]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data.trim() !== "boolean false")
-                    return;
-
-                systemService.triggerSolarLookup();
-                positionSource.update();
-            }
-        }
     }
 }

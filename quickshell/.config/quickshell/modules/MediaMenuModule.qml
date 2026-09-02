@@ -1,4 +1,3 @@
-import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import QtQuick
 import QtQuick.Controls
@@ -8,83 +7,56 @@ import qs.singletons
 import qs.components
 
 MyPopover {
-    id: mediaMenuModuleRoot
+    id: root
 
     readonly property real maxWidth: 280
     readonly property real maxHeight: Screen.height * 0.6
 
     hideContentBackground: true
-    onOpenedChanged: {
-        if (mediaMenuModuleRoot.opened)
-            return;
 
-        mediaAccordion.collapseAll();
+    onOpenedChanged: {
+        if (!opened)
+            mediaAccordion.collapseAll();
     }
 
-    // Sinks
+    // SINKS
+    readonly property bool hasSinks: PipewireService.sinks.length > 0
 
-    readonly property bool hasSinks: MediaService.sinks.length > 0
     readonly property string sinkIcon: {
-        if (!hasSinks)
+        if (!hasSinks || PipewireService.sinkMuted || PipewireService.sinkVolume === 0)
             return icons.volumeX;
-        if (MediaService.sinkMuted || MediaService.sinkVolume === 0)
-            return icons.volumeX;
-        if (MediaService.sinkVolume < 0.33)
+        if (PipewireService.sinkVolume < 0.33)
             return icons.volume;
-        if (MediaService.sinkVolume < 0.66)
+        if (PipewireService.sinkVolume < 0.66)
             return icons.volume1;
         return icons.volume2;
     }
 
-    // Sources
+    // SOURCES
+    readonly property bool hasSources: PipewireService.sources.length > 0
 
-    readonly property bool hasSources: MediaService.sources.length > 0
-    readonly property string sourceIcon: {
-        if (!hasSources)
-            return icons.micOff;
-        if (MediaService.sourceMuted || MediaService.sourceVolume === 0)
-            return icons.micOff;
-        return icons.mic;
-    }
+    readonly property string sourceIcon: !hasSources || PipewireService.sourceMuted || PipewireService.sourceVolume === 0 ? icons.micOff : icons.mic
 
-    // Videos
+    // CAMERAS
+    readonly property bool hasCamera: PipewireService.cameraSupported
 
-    readonly property bool hasVideo: MediaService.video !== null
-    readonly property string videoIcon: {
-        if (!hasVideo)
-            return icons.videoOff;
-        if (MediaService.videoMuted)
-            return icons.videoOff;
-        return icons.video;
-    }
-
-    // Monitor
-
-    readonly property var monitor: MonitorService.getMonitorForScreen(panel.screen)
-    readonly property string brightnessIcon: {
-        if (!monitor)
-            return icons.sunDim;
-        if (monitor.brightness < 0.33)
-            return icons.sunDim;
-        if (monitor.brightness < 0.66)
-            return icons.sunMedium;
-        return icons.sun;
-    }
+    readonly property string cameraIcon: !hasCamera || !PipewireService.cameraEnabled ? icons.videoOff : icons.video
 
     MyPopover.Anchor {
         AbstractButton {
-            id: anchorButtonRoot
+            id: anchorButton
 
-            property bool isActive: (mediaMenuModuleRoot.opened && !mediaMenuModuleRoot._isExiting) || hovered || pressed
+            property bool active: (root.opened && !root._isExiting) || hovered || pressed
 
             hoverEnabled: true
-            onClicked: mediaMenuModuleRoot.open()
+            onClicked: root.open()
 
             background: Rectangle {
-                color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.background, 0.5)
+                color: anchorButton.active ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.background, 0.5)
+
                 radius: 20
                 border.width: 1
-                border.color: anchorButtonRoot.isActive ? theme.border : Qt.alpha(theme.border, 0)
+                border.color: anchorButton.active ? theme.border : Qt.alpha(theme.border, 0)
 
                 Behavior on color {
                     ColorAnimation {
@@ -98,72 +70,56 @@ MyPopover {
                 spacing: 4
                 padding: 6
 
+                // AUDIO OUTPUT
                 Item {
-                    id: sinkTrackerRoot
                     implicitWidth: 22
                     implicitHeight: 22
 
                     MyIcon {
-                        size: 18
-                        source: mediaMenuModuleRoot.sinkIcon
-                        opacity: mediaMenuModuleRoot.hasSinks ? 1 : 0.5
                         anchors.centerIn: parent
+                        size: 18
+                        source: root.sinkIcon
+                        opacity: root.hasSinks ? 1 : 0.5
                     }
                 }
 
+                // MICROPHONE
                 Item {
-                    id: sourceTrackerRoot
                     implicitWidth: 22
                     implicitHeight: 22
-
-                    visible: mediaMenuModuleRoot.hasSources
-
-                    property bool inUse: {
-                        const node = MediaService.source;
-                        if (!node)
-                            return false;
-                        return Pipewire.linkGroups.values.some(g => (g.source && g.source.id === node.id) || (g.target && g.target.id === node.id));
-                    }
+                    visible: root.hasSources
 
                     Rectangle {
                         anchors.fill: parent
-                        color: sourceTrackerRoot.inUse ? theme.primary : Qt.alpha(theme.primary, 0)
                         radius: 10
+                        color: PipewireService.microphoneInUse ? theme.primary : Qt.alpha(theme.primary, 0)
                     }
 
                     MyIcon {
-                        size: 18
-                        source: mediaMenuModuleRoot.sourceIcon
-                        color: sourceTrackerRoot.inUse ? theme.primaryForeground : theme.foreground
                         anchors.centerIn: parent
+                        size: 18
+                        source: root.sourceIcon
+                        color: PipewireService.microphoneInUse ? theme.primaryForeground : theme.foreground
                     }
                 }
 
+                // CAMERA
                 Item {
-                    id: videoTrackerRoot
                     implicitWidth: 22
                     implicitHeight: 22
-
-                    visible: mediaMenuModuleRoot.hasVideo
-
-                    property bool inUse: {
-                        const node = MediaService.video;
-                        if (!node)
-                            return false;
-                        return Pipewire.linkGroups.values.some(g => (g.source && g.source.id === node.id) || (g.target && g.target.id === node.id));
-                    }
+                    visible: root.hasCamera
 
                     Rectangle {
                         anchors.fill: parent
-                        color: videoTrackerRoot.inUse ? theme.primary : Qt.alpha(theme.primary, 0)
                         radius: 10
+                        color: PipewireService.cameraInUse ? theme.primary : Qt.alpha(theme.primary, 0)
                     }
 
                     MyIcon {
-                        size: 18
-                        source: mediaMenuModuleRoot.videoIcon
-                        color: videoTrackerRoot.inUse ? theme.primaryForeground : theme.foreground
                         anchors.centerIn: parent
+                        size: 18
+                        source: root.cameraIcon
+                        color: PipewireService.cameraInUse ? theme.primaryForeground : theme.foreground
                     }
                 }
             }
@@ -172,110 +128,85 @@ MyPopover {
 
     MyPopover.Content {
         Item {
-            width: mediaMenuModuleRoot.maxWidth
-            height: mediaMenuModuleRoot.maxHeight
+            width: root.maxWidth
+            height: root.maxHeight
+
             Item {
-                width: mediaMenuModuleRoot.maxWidth
-                height: Math.min(contentContainer.implicitHeight, mediaMenuModuleRoot.maxHeight)
+                width: root.maxWidth
+                height: Math.min(contentContainer.implicitHeight, root.maxHeight)
                 anchors.bottom: parent.bottom
 
                 MyPopover.Background {}
 
                 ScrollView {
                     anchors.fill: parent
-                    ScrollBar.vertical.policy: {
-                        if (contentContainer.implicitHeight > mediaMenuModuleRoot.maxHeight)
-                            return ScrollBar.AsNeeded;
-                        else
-                            return ScrollBar.AlwaysOff;
-                    }
+
+                    ScrollBar.vertical.policy: contentContainer.implicitHeight > root.maxHeight ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
 
                     Column {
                         id: contentContainer
-                        width: mediaMenuModuleRoot.maxWidth
+
+                        width: root.maxWidth
 
                         MyAccordion {
                             id: mediaAccordion
+
                             type: "single"
                             contentPadding: 10
                             width: parent.width
 
-                            MyAccordion.Content {
-                                id: brightnessAccordionItem
-
-                                triggerDelegate: Component {
-                                    RowLayout {
-                                        spacing: 6
-
-                                        MyIcon {
-                                            size: 18
-                                            source: mediaMenuModuleRoot.brightnessIcon
-                                        }
-
-                                        MySlider {
-                                            to: 1
-                                            value: mediaMenuModuleRoot.monitor.brightness
-                                            onValueChanged: mediaMenuModuleRoot.monitor.setBrightness(value)
-                                            Layout.fillWidth: true
-                                        }
-
-                                        AccordionTriggerButton {
-                                            ref: brightnessAccordionItem
-                                        }
-                                    }
-                                }
-                                contentDelegate: ColumnLayout {
-                                    spacing: 8
-
-                                    MySwitch {
-                                        text: "Night Shift"
-                                        textPosition: Qt.LeftEdge
-                                        checked: MonitorService.nightShiftEnabled
-                                        onCheckedChanged: MonitorService.toggleNightShift()
-
-                                        Layout.fillWidth: true
-                                        Layout.leftMargin: -4
-                                        Layout.rightMargin: -4
-                                    }
-                                }
-                            }
+                            // SINKS
                             MyAccordion.Content {
                                 id: sinkAccordionItem
 
-                                enabled: mediaMenuModuleRoot.hasSinks
+                                enabled: root.hasSinks
 
                                 triggerDelegate: Component {
-                                    RowLayout {
-                                        spacing: 6
+                                    Item {
+                                        implicitHeight: sinkControls.implicitHeight
 
-                                        MyIcon {
-                                            size: 18
-                                            source: mediaMenuModuleRoot.sinkIcon
-                                        }
+                                        RowLayout {
+                                            id: sinkControls
 
-                                        MySlider {
-                                            to: 1
-                                            value: MediaService.sinkVolume
-                                            onValueChanged: MediaService.setSinkVolume(value)
-                                            Layout.fillWidth: true
-                                        }
+                                            anchors.fill: parent
+                                            spacing: 6
 
-                                        AccordionTriggerButton {
-                                            ref: sinkAccordionItem
+                                            MyIcon {
+                                                size: 18
+                                                source: root.sinkIcon
+                                            }
+
+                                            MySlider {
+                                                id: sinkSlider
+
+                                                to: 1
+                                                value: PipewireService.sinkVolume
+                                                onValueChanged: PipewireService.setSinkVolume(value)
+
+                                                Layout.fillWidth: true
+                                            }
+
+                                            AccordionTriggerButton {
+                                                ref: sinkAccordionItem
+                                            }
                                         }
                                     }
                                 }
+
                                 contentDelegate: ColumnLayout {
                                     spacing: 8
 
                                     Repeater {
-                                        model: MediaService.sinks
+                                        model: PipewireService.sinks
+
                                         delegate: MyRadioButton {
                                             required property var modelData
 
-                                            text: modelData.nickname ?? modelData.description ?? modelData.name ?? "Unknown"
-                                            checked: MediaService.sink ? modelData.id === MediaService.sink.id : false
-                                            onClicked: MediaService.setAudioSink(modelData)
+                                            text: PipewireService.deviceName(modelData)
+
+                                            checked: PipewireService.sink?.id === modelData.id
+
+                                            onClicked: PipewireService.setAudioSink(modelData)
 
                                             Layout.fillWidth: true
                                             Layout.leftMargin: -4
@@ -284,43 +215,61 @@ MyPopover {
                                     }
                                 }
                             }
+
+                            // SOURCES
                             MyAccordion.Content {
                                 id: sourceAccordionItem
 
-                                visible: mediaMenuModuleRoot.hasSources
+                                visible: root.hasSources
 
                                 triggerDelegate: Component {
-                                    RowLayout {
-                                        spacing: 6
+                                    Item {
+                                        implicitHeight: sourceControls.implicitHeight
 
-                                        MyIcon {
-                                            size: 18
-                                            source: mediaMenuModuleRoot.sourceIcon
-                                        }
+                                        RowLayout {
+                                            id: sourceControls
 
-                                        MySlider {
-                                            to: 1
-                                            value: MediaService.sourceVolume
-                                            onValueChanged: MediaService.setSourceVolume(value)
-                                            Layout.fillWidth: true
-                                        }
+                                            anchors.fill: parent
+                                            spacing: 6
 
-                                        AccordionTriggerButton {
-                                            ref: sourceAccordionItem
+                                            MyIcon {
+                                                size: 18
+                                                source: root.sourceIcon
+                                            }
+
+                                            MySlider {
+                                                id: sourceSlider
+
+                                                enabled: !PipewireService.sourceMuted
+                                                opacity: enabled ? 1 : 0.4
+                                                to: 1
+                                                value: PipewireService.sourceVolume
+                                                onValueChanged: PipewireService.setSourceVolume(value)
+
+                                                Layout.fillWidth: true
+                                            }
+
+                                            AccordionTriggerButton {
+                                                ref: sourceAccordionItem
+                                            }
                                         }
                                     }
                                 }
+
                                 contentDelegate: ColumnLayout {
                                     spacing: 8
 
                                     Repeater {
-                                        model: MediaService.sources
+                                        model: PipewireService.sources
+
                                         delegate: MyRadioButton {
                                             required property var modelData
 
-                                            text: modelData.nickname ?? modelData.description ?? modelData.name ?? "Unknown"
-                                            checked: MediaService.source ? modelData.id === MediaService.source.id : false
-                                            onClicked: MediaService.setAudioSource(modelData)
+                                            text: PipewireService.deviceName(modelData)
+
+                                            checked: PipewireService.source?.id === modelData.id
+
+                                            onClicked: PipewireService.setAudioSource(modelData)
 
                                             Layout.fillWidth: true
                                             Layout.leftMargin: -4
@@ -335,37 +284,43 @@ MyPopover {
                             width: parent.width
                             height: 1
                             color: theme.border
-
-                            visible: mediaMenuModuleRoot.hasSources || mediaMenuModuleRoot.hasVideo
+                            visible: root.hasSources || root.hasCamera
                         }
 
+                        // PRIVACY
                         WrapperItem {
                             margin: 10
                             width: parent.width
-
-                            visible: mediaMenuModuleRoot.hasSources || mediaMenuModuleRoot.hasVideo
+                            visible: root.hasSources || root.hasCamera
 
                             RowLayout {
                                 spacing: 10
 
                                 MyButton {
                                     text: "Microphone"
-                                    iconSource: icons.mic
-                                    variant: MediaService.sourceMuted ? "secondary" : "primary"
-                                    onClicked: MediaService.toggleSourceMute()
 
-                                    visible: mediaMenuModuleRoot.hasSources
+                                    iconSource: PipewireService.microphoneEnabled ? icons.mic : icons.micOff
+
+                                    variant: PipewireService.microphoneEnabled ? "primary" : "secondary"
+
+                                    onClicked: PipewireService.toggleMicrophoneEnabled()
+
+                                    visible: root.hasSources
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
                                 }
+
                                 MyButton {
                                     text: "Camera"
-                                    iconSource: icons.video
-                                    variant: MediaService.videoMuted ? "secondary" : "primary"
-                                    onClicked: MediaService.toggleVideoMute()
 
-                                    visible: mediaMenuModuleRoot.hasVideo
+                                    iconSource: PipewireService.cameraEnabled ? icons.video : icons.videoOff
+
+                                    variant: PipewireService.cameraEnabled ? "primary" : "secondary"
+
+                                    onClicked: PipewireService.toggleCameraEnabled()
+
+                                    visible: root.hasCamera
 
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: 0
@@ -379,8 +334,6 @@ MyPopover {
     }
 
     component AccordionTriggerButton: Item {
-        id: triggerButtonRoot
-
         required property var ref
 
         width: 18
@@ -395,9 +348,9 @@ MyPopover {
 
             contentItem: Item {
                 MyIcon {
+                    anchors.centerIn: parent
                     size: 18
                     source: ref.expanded ? icons.chevronUp : icons.chevronDown
-                    anchors.centerIn: parent
                 }
             }
         }

@@ -73,8 +73,8 @@ Item {
                     visible: true
                     color: "transparent"
 
-                    width: dialogFullscreenPanel.screen.width
-                    height: dialogFullscreenPanel.screen.height
+                    implicitWidth: dialogFullscreenPanel.screen.width
+                    implicitHeight: dialogFullscreenPanel.screen.height
                     anchor.window: dialogFullscreenPanel
                     anchor.adjustment: PopupAdjustment.None
 

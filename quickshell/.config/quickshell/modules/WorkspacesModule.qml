@@ -1,24 +1,26 @@
-import Quickshell.Hyprland
 import QtQuick
 import QtQuick.Layouts
 
+import qs.singletons
 import qs.components
 
 Item {
-    id: workspacesModuleRoot
+    id: root
 
     implicitWidth: 108
     implicitHeight: 24
 
-    readonly property var iconByWorkspaceId: ({
+    readonly property int activeWs: HyprlandService.activeWorkspaceId
+    readonly property bool middleActive: activeWs === 2 || activeWs === 3
+
+    readonly property var workspaceIcons: ({
             10: icons.earth,
             11: icons.music,
             12: icons.gamepad2
         })
 
-    readonly property int activeWorkspaceId: Hyprland.focusedWorkspace?.id ?? 1
-    readonly property string activeIcon: iconByWorkspaceId[activeWorkspaceId] ?? ""
-    readonly property bool showsIcon: activeIcon.length > 0
+    readonly property string activeIcon: workspaceIcons[activeWs] ?? ""
+    readonly property bool showsIcon: activeIcon !== ""
 
     RowLayout {
         anchors.fill: parent
@@ -30,29 +32,27 @@ Item {
 
         RowLayout {
             spacing: 8
-
-            Layout.preferredWidth: workspacesModuleRoot.activeWorkspaceId === 2 || workspacesModuleRoot.activeWorkspaceId === 3 ? 76 : 24
+            Layout.preferredWidth: root.middleActive ? 76 : 24
 
             WorkspaceDot {
-                visible: !workspacesModuleRoot.showsIcon
+                visible: !root.showsIcon
                 wsId: 2
             }
 
             MyIcon {
-                visible: workspacesModuleRoot.showsIcon
-                source: workspacesModuleRoot.activeIcon
+                visible: root.showsIcon
+                source: root.activeIcon
                 Layout.alignment: Qt.AlignHCenter
             }
 
             WorkspaceDot {
-                visible: !workspacesModuleRoot.showsIcon
+                visible: !root.showsIcon
                 wsId: 3
             }
 
             Behavior on Layout.preferredWidth {
                 NumberAnimation {
                     duration: 150
-                    easing.type: Easing.Linear
                 }
             }
         }
@@ -63,21 +63,20 @@ Item {
     }
 
     component WorkspaceDot: Rectangle {
-        id: workDotRoot
-
         required property int wsId
-        readonly property bool isActive: workspacesModuleRoot.activeWorkspaceId === wsId
+
+        readonly property bool active: root.activeWs === wsId
 
         height: 8
-        radius: 8
+        radius: height / 2
         color: theme.foreground
+
         Layout.fillWidth: true
-        Layout.preferredWidth: isActive ? 60 : 8
+        Layout.preferredWidth: active ? 60 : 8
 
         Behavior on Layout.preferredWidth {
             NumberAnimation {
                 duration: 150
-                easing.type: Easing.Linear
             }
         }
     }

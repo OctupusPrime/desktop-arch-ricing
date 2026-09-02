@@ -52,8 +52,6 @@ ShellRoot {
                         left: parent.left
                         leftMargin: 8
                     }
-
-                    AiAgentModule {}
                 }
 
                 RowLayout {
@@ -79,8 +77,6 @@ ShellRoot {
                         right: parent.right
                         rightMargin: 6
                     }
-
-                    ConnectionMenuModule {}
 
                     MediaMenuModule {}
 
