@@ -12,7 +12,9 @@ QsPopover {
     property real maxWidth: 184
     property real maxHeight: Screen.height * 0.6
 
+    property var appItems: SystemTray.items
     property string activeAppId: ""
+
     property var menuStack: null
 
     onOpenedChanged: {
@@ -106,7 +108,8 @@ QsPopover {
                 Repeater {
                     id: appsGridRepeater
 
-                    model: SystemTray.items
+                    model: appsTrayModuleRoot.appItems
+
                     delegate: AppItem {
                         required property SystemTrayItem modelData
 
@@ -120,6 +123,8 @@ QsPopover {
                                 modelData: modelData
                             });
                         }
+
+                        onMiddleClicked: Quickshell.clipboardText = modelData.id
                     }
                 }
             }
@@ -283,6 +288,7 @@ QsPopover {
             }
 
             model: traySubMenuOpener.children
+
             delegate: DelegateChooser {
                 role: "isSeparator"
 
@@ -342,6 +348,8 @@ QsPopover {
         property string iconSource
         property bool active
 
+        signal middleClicked
+
         hoverEnabled: true
 
         function getIconSource(id: string, pathname: string): string {
@@ -354,6 +362,19 @@ QsPopover {
                 return Qt.resolvedUrl(`${path}/${name.slice(name.lastIndexOf("/") + 1)}`);
             }
             return pathname;
+        }
+
+        MouseArea {
+            anchors.fill: parent
+
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+
+            onClicked: mouse => {
+                if (mouse.button === Qt.MiddleButton)
+                    appItemRoot.middleClicked();
+                else
+                    appItemRoot.clicked();
+            }
         }
 
         background: Rectangle {
