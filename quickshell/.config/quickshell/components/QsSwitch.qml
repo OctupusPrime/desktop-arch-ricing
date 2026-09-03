@@ -36,7 +36,7 @@ Switch {
         }
     }
 
-    contentItem: MyText {
+    contentItem: QsText {
         text: switchRoot.text
         fontSize: 14
         fontWeight: 500

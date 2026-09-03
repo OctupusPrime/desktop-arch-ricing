@@ -1,4 +1,5 @@
 import Quickshell.Widgets
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -6,18 +7,11 @@ import QtQuick.Layouts
 import qs.singletons
 import qs.components
 
-MyPopover {
+QsPopover {
     id: root
 
     readonly property real maxWidth: 280
     readonly property real maxHeight: Screen.height * 0.6
-
-    hideContentBackground: true
-
-    onOpenedChanged: {
-        if (!opened)
-            mediaAccordion.collapseAll();
-    }
 
     // SINKS
     readonly property bool hasSinks: PipewireService.sinks.length > 0
@@ -25,10 +19,13 @@ MyPopover {
     readonly property string sinkIcon: {
         if (!hasSinks || PipewireService.sinkMuted || PipewireService.sinkVolume === 0)
             return icons.volumeX;
+
         if (PipewireService.sinkVolume < 0.33)
             return icons.volume;
+
         if (PipewireService.sinkVolume < 0.66)
             return icons.volume1;
+
         return icons.volume2;
     }
 
@@ -42,289 +39,294 @@ MyPopover {
 
     readonly property string cameraIcon: !hasCamera || !PipewireService.cameraEnabled ? icons.videoOff : icons.video
 
-    MyPopover.Anchor {
-        AbstractButton {
-            id: anchorButton
+    // ANCHOR
+    anchor: AbstractButton {
+        id: anchorButton
 
-            property bool active: (root.opened && !root._isExiting) || hovered || pressed
+        property bool active: (root.opened && !root._isExiting) || hovered || pressed
 
-            hoverEnabled: true
-            onClicked: root.open()
+        hoverEnabled: true
+        onClicked: root.open()
 
-            background: Rectangle {
-                color: anchorButton.active ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.background, 0.5)
+        background: Rectangle {
+            color: anchorButton.active ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.background, 0.5)
 
-                radius: 20
-                border.width: 1
-                border.color: anchorButton.active ? theme.border : Qt.alpha(theme.border, 0)
+            radius: 20
+            border.width: 1
+            border.color: anchorButton.active ? theme.border : Qt.alpha(theme.border, 0)
 
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 150
-                        easing.type: Easing.OutCubic
-                    }
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
+
+        contentItem: Row {
+            spacing: 4
+            padding: 6
+
+            // AUDIO OUTPUT
+            Item {
+                implicitWidth: 22
+                implicitHeight: 22
+
+                QsIcon {
+                    anchors.centerIn: parent
+                    size: 18
+                    source: root.sinkIcon
+                    opacity: root.hasSinks ? 1 : 0.5
                 }
             }
 
-            contentItem: Row {
-                spacing: 4
-                padding: 6
+            // MICROPHONE
+            Item {
+                implicitWidth: 22
+                implicitHeight: 22
+                visible: root.hasSources
 
-                // AUDIO OUTPUT
-                Item {
-                    implicitWidth: 22
-                    implicitHeight: 22
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 10
 
-                    MyIcon {
-                        anchors.centerIn: parent
-                        size: 18
-                        source: root.sinkIcon
-                        opacity: root.hasSinks ? 1 : 0.5
-                    }
+                    color: PipewireService.microphoneInUse ? theme.primary : Qt.alpha(theme.primary, 0)
                 }
 
-                // MICROPHONE
-                Item {
-                    implicitWidth: 22
-                    implicitHeight: 22
-                    visible: root.hasSources
+                QsIcon {
+                    anchors.centerIn: parent
+                    size: 18
+                    source: root.sourceIcon
 
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 10
-                        color: PipewireService.microphoneInUse ? theme.primary : Qt.alpha(theme.primary, 0)
-                    }
+                    color: PipewireService.microphoneInUse ? theme.primaryForeground : theme.foreground
+                }
+            }
 
-                    MyIcon {
-                        anchors.centerIn: parent
-                        size: 18
-                        source: root.sourceIcon
-                        color: PipewireService.microphoneInUse ? theme.primaryForeground : theme.foreground
-                    }
+            // CAMERA
+            Item {
+                implicitWidth: 22
+                implicitHeight: 22
+                visible: root.hasCamera
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 10
+
+                    color: PipewireService.cameraInUse ? theme.primary : Qt.alpha(theme.primary, 0)
                 }
 
-                // CAMERA
-                Item {
-                    implicitWidth: 22
-                    implicitHeight: 22
-                    visible: root.hasCamera
+                QsIcon {
+                    anchors.centerIn: parent
+                    size: 18
+                    source: root.cameraIcon
 
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 10
-                        color: PipewireService.cameraInUse ? theme.primary : Qt.alpha(theme.primary, 0)
-                    }
-
-                    MyIcon {
-                        anchors.centerIn: parent
-                        size: 18
-                        source: root.cameraIcon
-                        color: PipewireService.cameraInUse ? theme.primaryForeground : theme.foreground
-                    }
+                    color: PipewireService.cameraInUse ? theme.primaryForeground : theme.foreground
                 }
             }
         }
     }
 
-    MyPopover.Content {
+    // CONTENT
+    content: Item {
+        implicitWidth: root.maxWidth
+        implicitHeight: root.maxHeight
+
+        width: implicitWidth
+        height: implicitHeight
+
         Item {
             width: root.maxWidth
-            height: root.maxHeight
 
-            Item {
-                width: root.maxWidth
-                height: Math.min(contentContainer.implicitHeight, root.maxHeight)
-                anchors.bottom: parent.bottom
+            height: Math.min(contentContainer.implicitHeight, root.maxHeight)
 
-                MyPopover.Background {}
+            anchors.bottom: parent.bottom
 
-                ScrollView {
-                    anchors.fill: parent
+            QsPopover.Background {}
 
-                    ScrollBar.vertical.policy: contentContainer.implicitHeight > root.maxHeight ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
+            ScrollView {
+                anchors.fill: parent
 
-                    Column {
-                        id: contentContainer
+                ScrollBar.vertical.policy: contentContainer.implicitHeight > root.maxHeight ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
 
-                        width: root.maxWidth
+                Column {
+                    id: contentContainer
 
-                        MyAccordion {
-                            id: mediaAccordion
+                    width: root.maxWidth
 
-                            type: "single"
-                            contentPadding: 10
-                            width: parent.width
+                    QsAccordion {
+                        type: "single"
+                        contentPadding: 10
+                        width: parent.width
 
-                            // SINKS
-                            MyAccordion.Content {
-                                id: sinkAccordionItem
+                        // SINKS
+                        QsAccordion.Content {
+                            id: sinkAccordionItem
 
-                                enabled: root.hasSinks
+                            enabled: root.hasSinks
 
-                                triggerDelegate: Component {
-                                    Item {
-                                        implicitHeight: sinkControls.implicitHeight
+                            trigger: Item {
+                                implicitHeight: sinkControls.implicitHeight
 
-                                        RowLayout {
-                                            id: sinkControls
+                                RowLayout {
+                                    id: sinkControls
 
-                                            anchors.fill: parent
-                                            spacing: 6
+                                    anchors.fill: parent
+                                    spacing: 6
 
-                                            MyIcon {
-                                                size: 18
-                                                source: root.sinkIcon
-                                            }
-
-                                            MySlider {
-                                                id: sinkSlider
-
-                                                to: 1
-                                                value: PipewireService.sinkVolume
-                                                onValueChanged: PipewireService.setSinkVolume(value)
-
-                                                Layout.fillWidth: true
-                                            }
-
-                                            AccordionTriggerButton {
-                                                ref: sinkAccordionItem
-                                            }
-                                        }
+                                    QsIcon {
+                                        size: 18
+                                        source: root.sinkIcon
                                     }
-                                }
 
-                                contentDelegate: ColumnLayout {
-                                    spacing: 8
+                                    QsSlider {
+                                        to: 1
 
-                                    Repeater {
-                                        model: PipewireService.sinks
+                                        value: PipewireService.sinkVolume
 
-                                        delegate: MyRadioButton {
-                                            required property var modelData
+                                        onValueChanged: PipewireService.setSinkVolume(value)
 
-                                            text: PipewireService.deviceName(modelData)
+                                        Layout.fillWidth: true
+                                    }
 
-                                            checked: PipewireService.sink?.id === modelData.id
-
-                                            onClicked: PipewireService.setAudioSink(modelData)
-
-                                            Layout.fillWidth: true
-                                            Layout.leftMargin: -4
-                                            Layout.rightMargin: -4
-                                        }
+                                    AccordionTriggerButton {
+                                        ref: sinkAccordionItem
                                     }
                                 }
                             }
 
-                            // SOURCES
-                            MyAccordion.Content {
-                                id: sourceAccordionItem
+                            content: ColumnLayout {
+                                spacing: 8
+
+                                Repeater {
+                                    model: PipewireService.sinks
+
+                                    delegate: QsRadioButton {
+                                        required property var modelData
+
+                                        text: PipewireService.deviceName(modelData)
+
+                                        checked: PipewireService.sink?.id === modelData.id
+
+                                        onClicked: PipewireService.setAudioSink(modelData)
+
+                                        Layout.fillWidth: true
+                                        Layout.leftMargin: -4
+                                        Layout.rightMargin: -4
+                                    }
+                                }
+                            }
+                        }
+
+                        // SOURCES
+                        QsAccordion.Content {
+                            id: sourceAccordionItem
+
+                            visible: root.hasSources
+
+                            trigger: Item {
+                                implicitHeight: sourceControls.implicitHeight
+
+                                RowLayout {
+                                    id: sourceControls
+
+                                    anchors.fill: parent
+                                    spacing: 6
+
+                                    QsIcon {
+                                        size: 18
+                                        source: root.sourceIcon
+                                    }
+
+                                    QsSlider {
+                                        enabled: !PipewireService.sourceMuted
+
+                                        opacity: enabled ? 1 : 0.4
+
+                                        to: 1
+
+                                        value: PipewireService.sourceVolume
+
+                                        onValueChanged: PipewireService.setSourceVolume(value)
+
+                                        Layout.fillWidth: true
+                                    }
+
+                                    AccordionTriggerButton {
+                                        ref: sourceAccordionItem
+                                    }
+                                }
+                            }
+
+                            content: ColumnLayout {
+                                spacing: 8
+
+                                Repeater {
+                                    model: PipewireService.sources
+
+                                    delegate: QsRadioButton {
+                                        required property var modelData
+
+                                        text: PipewireService.deviceName(modelData)
+
+                                        checked: PipewireService.source?.id === modelData.id
+
+                                        onClicked: PipewireService.setAudioSource(modelData)
+
+                                        Layout.fillWidth: true
+                                        Layout.leftMargin: -4
+                                        Layout.rightMargin: -4
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 1
+                        color: theme.border
+
+                        visible: root.hasSources || root.hasCamera
+                    }
+
+                    // PRIVACY
+                    WrapperItem {
+                        margin: 10
+                        width: parent.width
+
+                        visible: root.hasSources || root.hasCamera
+
+                        RowLayout {
+                            spacing: 10
+
+                            QsButton {
+                                text: "Microphone"
+
+                                iconSource: PipewireService.microphoneEnabled ? icons.mic : icons.micOff
+
+                                variant: PipewireService.microphoneEnabled ? "primary" : "secondary"
+
+                                onClicked: PipewireService.toggleMicrophoneEnabled()
 
                                 visible: root.hasSources
 
-                                triggerDelegate: Component {
-                                    Item {
-                                        implicitHeight: sourceControls.implicitHeight
-
-                                        RowLayout {
-                                            id: sourceControls
-
-                                            anchors.fill: parent
-                                            spacing: 6
-
-                                            MyIcon {
-                                                size: 18
-                                                source: root.sourceIcon
-                                            }
-
-                                            MySlider {
-                                                id: sourceSlider
-
-                                                enabled: !PipewireService.sourceMuted
-                                                opacity: enabled ? 1 : 0.4
-                                                to: 1
-                                                value: PipewireService.sourceVolume
-                                                onValueChanged: PipewireService.setSourceVolume(value)
-
-                                                Layout.fillWidth: true
-                                            }
-
-                                            AccordionTriggerButton {
-                                                ref: sourceAccordionItem
-                                            }
-                                        }
-                                    }
-                                }
-
-                                contentDelegate: ColumnLayout {
-                                    spacing: 8
-
-                                    Repeater {
-                                        model: PipewireService.sources
-
-                                        delegate: MyRadioButton {
-                                            required property var modelData
-
-                                            text: PipewireService.deviceName(modelData)
-
-                                            checked: PipewireService.source?.id === modelData.id
-
-                                            onClicked: PipewireService.setAudioSource(modelData)
-
-                                            Layout.fillWidth: true
-                                            Layout.leftMargin: -4
-                                            Layout.rightMargin: -4
-                                        }
-                                    }
-                                }
+                                Layout.fillWidth: true
+                                Layout.preferredWidth: 0
                             }
-                        }
 
-                        Rectangle {
-                            width: parent.width
-                            height: 1
-                            color: theme.border
-                            visible: root.hasSources || root.hasCamera
-                        }
+                            QsButton {
+                                text: "Camera"
 
-                        // PRIVACY
-                        WrapperItem {
-                            margin: 10
-                            width: parent.width
-                            visible: root.hasSources || root.hasCamera
+                                iconSource: PipewireService.cameraEnabled ? icons.video : icons.videoOff
 
-                            RowLayout {
-                                spacing: 10
+                                variant: PipewireService.cameraEnabled ? "primary" : "secondary"
 
-                                MyButton {
-                                    text: "Microphone"
+                                onClicked: PipewireService.toggleCameraEnabled()
 
-                                    iconSource: PipewireService.microphoneEnabled ? icons.mic : icons.micOff
+                                visible: root.hasCamera
 
-                                    variant: PipewireService.microphoneEnabled ? "primary" : "secondary"
-
-                                    onClicked: PipewireService.toggleMicrophoneEnabled()
-
-                                    visible: root.hasSources
-
-                                    Layout.fillWidth: true
-                                    Layout.preferredWidth: 0
-                                }
-
-                                MyButton {
-                                    text: "Camera"
-
-                                    iconSource: PipewireService.cameraEnabled ? icons.video : icons.videoOff
-
-                                    variant: PipewireService.cameraEnabled ? "primary" : "secondary"
-
-                                    onClicked: PipewireService.toggleCameraEnabled()
-
-                                    visible: root.hasCamera
-
-                                    Layout.fillWidth: true
-                                    Layout.preferredWidth: 0
-                                }
+                                Layout.fillWidth: true
+                                Layout.preferredWidth: 0
                             }
                         }
                     }
@@ -334,23 +336,25 @@ MyPopover {
     }
 
     component AccordionTriggerButton: Item {
-        required property var ref
+        property var ref: null
 
         width: 18
         height: 18
 
         AbstractButton {
             z: 10
+
             anchors.fill: parent
             anchors.margins: -10
 
-            onClicked: ref.toggle()
+            onClicked: ref?.toggle()
 
             contentItem: Item {
-                MyIcon {
+                QsIcon {
                     anchors.centerIn: parent
+
                     size: 18
-                    source: ref.expanded ? icons.chevronUp : icons.chevronDown
+                    source: ref?.expanded ? icons.chevronUp : icons.chevronDown
                 }
             }
         }

@@ -16,7 +16,7 @@ QtObject {
         anchors.left: parent ? parent.left : undefined
         anchors.right: parent ? parent.right : undefined
 
-        MyText {
+        QsText {
             text: menyLabelRoot.text
             color: theme.mutedForeground
             fontSize: 12
@@ -56,7 +56,7 @@ QtObject {
             id: contentRow
             spacing: 6
 
-            MyText {
+            QsText {
                 text: menuItemRoot.text
                 color: theme.popoverForeground
                 fontSize: 14
@@ -64,13 +64,13 @@ QtObject {
                 Layout.fillWidth: true
             }
 
-            MyIcon {
+            QsIcon {
                 visible: menuItemRoot.hasSubMenu
                 source: icons.chevronRight
                 size: 16
             }
 
-            MyIcon {
+            QsIcon {
                 visible: menuItemRoot.buttonType > 0 && menuItemRoot.checkState > 0
                 source: icons.check
                 size: 16

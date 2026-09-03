@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import qs.singletons
 import qs.components
 
-MyText {
+QsText {
     id: keyboardModuleRoot
 
     Layout.preferredWidth: 20

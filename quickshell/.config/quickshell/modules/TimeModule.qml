@@ -9,13 +9,13 @@ ColumnLayout {
 
     spacing: 0
 
-    MyText {
+    QsText {
         text: SystemService.time
         fontWeight: 600
         Layout.alignment: Qt.AlignRight
     }
 
-    MyText {
+    QsText {
         text: SystemService.date
         color: theme.mutedForeground
         fontSize: 12

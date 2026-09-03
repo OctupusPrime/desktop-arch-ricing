@@ -5,40 +5,39 @@ import QtQuick
 Item {
     id: popoverRoot
 
+    property Component anchor
+    property Component content
+
     property bool opened: false
     property bool _isExiting: false
 
-    property bool hideContentBackground: false
-    property bool hasActiveChild: false
     property var activePopup: null
+    property bool hasActiveChild: false
 
-    function open() {
+    function open(): void {
         popoverRoot.opened = true;
     }
-    function close() {
-        popoverRoot._isExiting = true;
+
+    function close(): void {
+        if (popoverRoot.opened)
+            popoverRoot._isExiting = true;
     }
-    function toggle() {
+
+    function toggle(): void {
         popoverRoot.opened ? popoverRoot.close() : popoverRoot.open();
     }
-    function terminate() {
+
+    function terminate(): void {
         popoverRoot.opened = false;
         popoverRoot._isExiting = false;
     }
 
-    component Anchor: Item {
-        implicitWidth: childrenRect.width
-        implicitHeight: childrenRect.height
-    }
-    component Content: Item {
-        implicitWidth: childrenRect.width
-        implicitHeight: childrenRect.height
-    }
     component Background: BorderImage {
         anchors {
             fill: parent
             margins: -40
         }
+
         border {
             left: 60
             top: 60
@@ -53,6 +52,7 @@ Item {
                 fill: parent
                 margins: 40
             }
+
             color: theme.popover
             radius: 10
             border.color: theme.border
@@ -60,46 +60,30 @@ Item {
         }
     }
 
-    default property list<QtObject> _items
-    property Anchor _anchor: null
-    property Content _content: null
+    implicitWidth: anchorLoader.item?.implicitWidth ?? 0
+    implicitHeight: anchorLoader.item?.implicitHeight ?? 0
 
-    Component.onCompleted: {
-        for (let i = 0; i < _items.length; i++) {
-            if (_items[i] instanceof Anchor)
-                _anchor = _items[i];
-            else if (_items[i] instanceof Content)
-                _content = _items[i];
-        }
-    }
-
-    implicitWidth: _anchor ? _anchor.implicitWidth : 0
-    implicitHeight: _anchor ? _anchor.implicitHeight : 0
-
-    Item {
-        id: triggerContainer
+    Loader {
+        id: anchorLoader
 
         anchors.fill: parent
-
-        Binding {
-            target: popoverRoot._anchor
-            property: "parent"
-            value: triggerContainer
-        }
+        sourceComponent: popoverRoot.anchor
     }
 
     LazyLoader {
         id: popupLoader
+
         active: popoverRoot.opened
 
         QtObject {
             property var focusGrab: HyprlandFocusGrab {
                 windows: popoverRoot.activePopup ? [popoverRoot.activePopup] : []
+
                 active: popoverRoot.opened && !popoverRoot._isExiting && !popoverRoot.hasActiveChild
+
                 onCleared: {
-                    if (popoverRoot.hasActiveChild)
-                        return;
-                    popoverRoot.close();
+                    if (!popoverRoot.hasActiveChild)
+                        popoverRoot.close();
                 }
             }
 
@@ -107,46 +91,79 @@ Item {
                 id: popoverPopup
 
                 visible: true
-                // Offsets of shadow
+                color: "transparent"
+
                 implicitWidth: contentContainer.implicitWidth + 40
                 implicitHeight: contentContainer.implicitHeight + 16
-                color: "transparent"
+
                 anchor {
                     window: panel
                     edges: Edges.Bottom
                     gravity: Edges.Top
+
                     rect: {
-                        const anchorPos = popoverRoot._anchor.mapToItem(panel.contentItem, 0, 0);
-                        return Qt.rect(anchorPos.x, 0, popoverRoot._anchor.width, 0);
+                        const item = anchorLoader.item;
+
+                        if (!item)
+                            return Qt.rect(0, 0, 0, 0);
+
+                        const pos = item.mapToItem(panel.contentItem, 0, 0);
+
+                        return Qt.rect(pos.x, 0, item.width, 0);
                     }
                 }
 
                 Component.onCompleted: popoverRoot.activePopup = popoverPopup
-                Component.onDestruction: popoverRoot.activePopup = null
+
+                Component.onDestruction: {
+                    if (popoverRoot.activePopup === popoverPopup)
+                        popoverRoot.activePopup = null;
+                }
 
                 MouseArea {
                     anchors.fill: parent
+
                     onClicked: {
-                        if (popoverRoot.hasActiveChild)
-                            return;
-                        popoverRoot.close();
+                        if (!popoverRoot.hasActiveChild)
+                            popoverRoot.close();
                     }
                 }
 
                 Item {
                     id: contentContainer
 
-                    implicitWidth: popoverRoot._content ? popoverRoot._content.implicitWidth : 100
-                    implicitHeight: popoverRoot._content ? popoverRoot._content.implicitHeight : 100
+                    readonly property bool contentReady: contentLoader.item !== null
+
+                    implicitWidth: contentReady ? contentLoader.item?.implicitWidth ?? 100 : 100
+
+                    implicitHeight: contentReady ? contentLoader.item?.implicitHeight ?? 100 : 100
+
                     opacity: 0
                     scale: 0.95
+
                     anchors.centerIn: parent
                     transformOrigin: Item.Bottom
+
+                    LazyLoader {
+                        id: contentLoader
+
+                        activeAsync: popoverRoot.opened
+                        component: popoverRoot.content
+                    }
+
+                    Binding {
+                        target: contentLoader.item
+
+                        property: "parent"
+                        value: contentContainer
+                    }
 
                     states: [
                         State {
                             name: "visible"
-                            when: popoverRoot.opened && !popoverRoot._isExiting
+
+                            when: popoverRoot.opened && !popoverRoot._isExiting && contentContainer.contentReady
+
                             PropertyChanges {
                                 contentContainer {
                                     opacity: 1
@@ -157,6 +174,7 @@ Item {
                         State {
                             name: "hidden"
                             when: popoverRoot._isExiting
+
                             PropertyChanges {
                                 contentContainer {
                                     opacity: 0
@@ -169,12 +187,14 @@ Item {
                     transitions: [
                         Transition {
                             from: "*"
-                            to: "visible" // On Entry
+                            to: "visible"
+
                             ParallelAnimation {
                                 NumberAnimation {
                                     property: "opacity"
                                     duration: 200
                                 }
+
                                 NumberAnimation {
                                     property: "scale"
                                     duration: 250
@@ -183,39 +203,33 @@ Item {
                             }
                         },
                         Transition {
-                            from: "visible"
-                            to: "hidden" // On Exit
+                            from: "*"
+                            to: "hidden"
+
                             SequentialAnimation {
                                 ParallelAnimation {
                                     NumberAnimation {
                                         property: "opacity"
                                         duration: 200
                                     }
+
                                     NumberAnimation {
                                         property: "scale"
                                         duration: 250
                                         easing.type: Easing.OutCubic
                                     }
                                 }
+
                                 NumberAnimation {
                                     duration: 100
-                                } // Pause to ensure smoothness
+                                }
+
                                 ScriptAction {
                                     script: popoverRoot.terminate()
                                 }
                             }
                         }
                     ]
-
-                    Background {
-                        visible: !popoverRoot.hideContentBackground
-                    }
-
-                    Binding {
-                        target: popoverRoot._content
-                        property: "parent"
-                        value: contentContainer
-                    }
                 }
             }
         }

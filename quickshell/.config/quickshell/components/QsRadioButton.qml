@@ -31,7 +31,7 @@ RadioButton {
         }
     }
 
-    contentItem: MyText {
+    contentItem: QsText {
         text: radioButtonRoot.text
         fontSize: 14
         fontWeight: 500

@@ -49,16 +49,6 @@ ShellRoot {
 
                     anchors {
                         verticalCenter: parent.verticalCenter
-                        left: parent.left
-                        leftMargin: 8
-                    }
-                }
-
-                RowLayout {
-                    spacing: 16
-
-                    anchors {
-                        verticalCenter: parent.verticalCenter
                         horizontalCenter: parent.horizontalCenter
                     }
 

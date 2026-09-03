@@ -6,16 +6,15 @@ import QtQuick.Controls
 
 import qs.components
 
-MyPopover {
+QsPopover {
     id: appsTrayModuleRoot
 
     property real maxWidth: 184
     property real maxHeight: Screen.height * 0.6
 
     property string activeAppId: ""
-    property alias menuStack: trayMenuStackView
+    property var menuStack: null
 
-    hideContentBackground: true
     onOpenedChanged: {
         if (appsTrayModuleRoot.opened)
             return;
@@ -24,99 +23,102 @@ MyPopover {
         appsTrayModuleRoot.activeAppId = "";
     }
 
-    MyPopover.Anchor {
-        AbstractButton {
-            id: anchorButtonRoot
+    anchor: AbstractButton {
+        id: anchorButtonRoot
 
-            property bool isActive: (appsTrayModuleRoot.opened && !appsTrayModuleRoot._isExiting) || hovered || pressed
+        property bool isActive: (appsTrayModuleRoot.opened && !appsTrayModuleRoot._isExiting) || hovered || pressed
 
-            hoverEnabled: true
-            onClicked: appsTrayModuleRoot.open()
+        hoverEnabled: true
+        onClicked: appsTrayModuleRoot.open()
 
-            background: Rectangle {
-                color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
-                radius: 10
+        background: Rectangle {
+            color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
+            radius: 10
 
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 150
-                        easing.type: Easing.OutCubic
-                    }
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                    easing.type: Easing.OutCubic
                 }
             }
+        }
 
-            contentItem: Item {
-                implicitWidth: 36
-                implicitHeight: 36
+        contentItem: Item {
+            implicitWidth: 36
+            implicitHeight: 36
 
-                MyIcon {
-                    source: icons.boxes
-                    anchors.centerIn: parent
-                }
+            QsIcon {
+                source: icons.boxes
+                anchors.centerIn: parent
             }
         }
     }
 
-    MyPopover.Content {
-        ColumnLayout {
-            spacing: 8
+    content: ColumnLayout {
+        spacing: 8
 
-            StackView {
-                id: trayMenuStackView
+        StackView {
+            id: trayMenuStackView
 
-                implicitWidth: appsTrayModuleRoot.maxWidth
-                implicitHeight: appsTrayModuleRoot.maxHeight
+            implicitWidth: appsTrayModuleRoot.maxWidth
+            implicitHeight: appsTrayModuleRoot.maxHeight
 
-                replaceEnter: null
-                replaceExit: Transition {
-                    PropertyAnimation {
-                        property: "opacity"
-                        to: 0
-                        duration: 250
-                        easing.type: Easing.OutCubic
-                    }
+            replaceEnter: null
+            replaceExit: Transition {
+                PropertyAnimation {
+                    property: "opacity"
+                    to: 0
+                    duration: 250
+                    easing.type: Easing.OutCubic
                 }
             }
 
-            Item {
-                property int margin: 4
-                property int minSize: 32
+            Component.onCompleted: appsTrayModuleRoot.menuStack = trayMenuStackView
 
-                implicitWidth: Math.max(minSize, appsGridContainer.implicitWidth) + (margin * 2)
-                implicitHeight: Math.max(minSize, appsGridContainer.implicitHeight) + (margin * 2)
-                Layout.alignment: Qt.AlignCenter
+            Component.onDestruction: {
+                if (appsTrayModuleRoot.menuStack === trayMenuStackView)
+                    appsTrayModuleRoot.menuStack = null;
+            }
+        }
 
-                MyPopover.Background {}
+        Item {
+            property int margin: 4
+            property int minSize: 32
 
-                MouseArea {
-                    anchors.fill: parent
-                }
+            implicitWidth: Math.max(minSize, appsGridContainer.implicitWidth) + (margin * 2)
+            implicitHeight: Math.max(minSize, appsGridContainer.implicitHeight) + (margin * 2)
+            Layout.alignment: Qt.AlignCenter
 
-                Grid {
-                    id: appsGridContainer
+            QsPopover.Background {}
 
-                    anchors.fill: parent
-                    anchors.margins: parent.margin
-                    columns: Math.min(appsGridRepeater.count, 5)
-                    spacing: 4
+            MouseArea {
+                anchors.fill: parent
+            }
 
-                    Repeater {
-                        id: appsGridRepeater
+            Grid {
+                id: appsGridContainer
 
-                        model: SystemTray.items
-                        delegate: AppItem {
-                            required property SystemTrayItem modelData
+                anchors.fill: parent
+                anchors.margins: parent.margin
+                columns: Math.min(appsGridRepeater.count, 5)
+                spacing: 4
 
-                            appId: modelData.id
-                            iconSource: modelData.icon
-                            active: appsTrayModuleRoot.activeAppId === modelData.id
+                Repeater {
+                    id: appsGridRepeater
 
-                            onClicked: {
-                                appsTrayModuleRoot.activeAppId = modelData.id;
-                                appsTrayModuleRoot.menuStack.replaceCurrentItem(trayMenuFactory, {
-                                    modelData: modelData
-                                });
-                            }
+                    model: SystemTray.items
+                    delegate: AppItem {
+                        required property SystemTrayItem modelData
+
+                        appId: modelData.id
+                        iconSource: modelData.icon
+                        active: appsTrayModuleRoot.activeAppId === modelData.id
+
+                        onClicked: {
+                            appsTrayModuleRoot.activeAppId = modelData.id;
+                            appsTrayModuleRoot.menuStack.replaceCurrentItem(trayMenuFactory, {
+                                modelData: modelData
+                            });
                         }
                     }
                 }
@@ -175,7 +177,7 @@ MyPopover {
                     }
                 ]
 
-                MyPopover.Background {}
+                QsPopover.Background {}
 
                 MouseArea {
                     anchors.fill: parent
@@ -287,13 +289,13 @@ MyPopover {
                 DelegateChoice {
                     roleValue: true
 
-                    MyDropdown.MenuSeparator {}
+                    QsDropdown.MenuSeparator {}
                 }
 
                 DelegateChoice {
                     roleValue: false
 
-                    MyDropdown.MenuItem {
+                    QsDropdown.MenuItem {
                         required property var modelData
 
                         anchors.leftMargin: traySubMenuRoot.margin
@@ -419,7 +421,7 @@ MyPopover {
             color: theme.background
             anchors.centerIn: parent
 
-            MyButton {
+            QsButton {
                 id: backButton
 
                 size: "sm"

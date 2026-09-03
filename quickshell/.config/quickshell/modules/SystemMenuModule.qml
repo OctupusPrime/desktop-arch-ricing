@@ -4,41 +4,39 @@ import QtQuick.Controls
 import qs.singletons
 import qs.components
 
-MyPopover {
+QsPopover {
     id: systemMenuModuleRoot
 
     property real maxWidth: 148
     property real maxHeight: Screen.height * 0.6
 
-    MyPopover.Anchor {
-        AbstractButton {
-            id: anchorButtonRoot
+    anchor: AbstractButton {
+        id: anchorButtonRoot
 
-            property bool isActive: (systemMenuModuleRoot.opened && !systemMenuModuleRoot._isExiting) || hovered || pressed
+        property bool isActive: (systemMenuModuleRoot.opened && !systemMenuModuleRoot._isExiting) || hovered || pressed
 
-            hoverEnabled: true
-            onClicked: systemMenuModuleRoot.open()
+        hoverEnabled: true
+        onClicked: systemMenuModuleRoot.open()
 
-            background: Rectangle {
-                color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
-                radius: 10
+        background: Rectangle {
+            color: anchorButtonRoot.isActive ? Qt.alpha(theme.muted, 0.75) : Qt.alpha(theme.muted, 0)
+            radius: 10
 
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 150
-                        easing.type: Easing.OutCubic
-                    }
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                    easing.type: Easing.OutCubic
                 }
             }
+        }
 
-            contentItem: Item {
-                implicitWidth: 36
-                implicitHeight: 36
+        contentItem: Item {
+            implicitWidth: 36
+            implicitHeight: 36
 
-                MyIcon {
-                    source: icons.arch
-                    anchors.centerIn: parent
-                }
+            QsIcon {
+                source: icons.arch
+                anchors.centerIn: parent
             }
         }
     }
@@ -95,14 +93,22 @@ MyPopover {
         }
     }
 
-    MyPopover.Content {
+    content: Item {
+        implicitWidth: contentListView.implicitWidth
+        implicitHeight: contentListView.implicitHeight
+
+        QsPopover.Background {}
+
         ListView {
             id: contentListView
 
             property int margin: 4
 
+            anchors.fill: parent
+
             topMargin: margin
             bottomMargin: margin
+
             implicitWidth: systemMenuModuleRoot.maxWidth
             implicitHeight: Math.min(contentHeight + topMargin + bottomMargin, systemMenuModuleRoot.maxHeight)
 
@@ -111,18 +117,19 @@ MyPopover {
             }
 
             model: systemMenuModel
+
             delegate: DelegateChooser {
                 role: "type"
 
                 DelegateChoice {
                     roleValue: "separator"
 
-                    MyDropdown.MenuSeparator {}
+                    QsDropdown.MenuSeparator {}
                 }
                 DelegateChoice {
                     roleValue: "label"
 
-                    MyDropdown.MenuLabel {
+                    QsDropdown.MenuLabel {
                         required property var modelData
 
                         anchors.leftMargin: contentListView.margin
@@ -134,7 +141,7 @@ MyPopover {
                 DelegateChoice {
                     roleValue: "item"
 
-                    MyDropdown.MenuItem {
+                    QsDropdown.MenuItem {
                         required property var modelData
 
                         anchors.leftMargin: contentListView.margin
@@ -147,7 +154,7 @@ MyPopover {
                 DelegateChoice {
                     roleValue: "appearanceItem"
 
-                    MyDropdown.MenuItem {
+                    QsDropdown.MenuItem {
                         required property var modelData
 
                         anchors.leftMargin: contentListView.margin

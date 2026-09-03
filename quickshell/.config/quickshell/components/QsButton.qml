@@ -226,14 +226,14 @@ AbstractButton {
             spacing: buttonRoot._gap
             anchors.centerIn: parent
 
-            MyIcon {
+            QsIcon {
                 visible: buttonRoot.iconSource.toString() !== ""
                 source: buttonRoot.iconSource
                 size: buttonRoot._iconSize
                 color: buttonRoot._contentColor
             }
 
-            MyText {
+            QsText {
                 visible: buttonRoot.text !== ""
                 text: buttonRoot.text
                 color: buttonRoot._contentColor

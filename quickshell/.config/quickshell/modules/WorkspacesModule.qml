@@ -39,7 +39,7 @@ Item {
                 wsId: 2
             }
 
-            MyIcon {
+            QsIcon {
                 visible: root.showsIcon
                 source: root.activeIcon
                 Layout.alignment: Qt.AlignHCenter
