@@ -17,18 +17,17 @@ const (
 func main() {
 	lng := flag.Float64("lng", 0.0, "Longitude (decimal degrees)")
 	lat := flag.Float64("lat", 0.0, "Latitude (decimal degrees)")
-	dateStr := flag.String("date", "", "Date in dd/mm/yyyy format")
 	tzName := flag.String("tz", "UTC", "Timezone name (e.g., Asia/Shanghai)")
+
 	flag.Parse()
 
-	if *dateStr == "" {
-		fmt.Println("Error: --date is required")
+	if math.IsNaN(*lat) || *lat < -90 || *lat > 90 {
+		fmt.Fprintln(os.Stderr, "Error: invalid --lat")
 		os.Exit(1)
 	}
 
-	t, err := time.Parse("02/01/2006", *dateStr)
-	if err != nil {
-		fmt.Printf("Error parsing date: %v\n", err)
+	if math.IsNaN(*lng) || *lng < -180 || *lng > 180 {
+		fmt.Fprintln(os.Stderr, "Error: invalid --lng")
 		os.Exit(1)
 	}
 
@@ -38,8 +37,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	sunriseTime := calculateSolarEvent(t, *lat, *lng, true)
-	sunsetTime := calculateSolarEvent(t, *lat, *lng, false)
+	now := time.Now().In(loc)
+	date := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		0, 0, 0, 0,
+		time.UTC,
+	)
+
+	sunriseTime := calculateSolarEvent(date, *lat, *lng, true)
+	sunsetTime := calculateSolarEvent(date, *lat, *lng, false)
 
 	srLocal := sunriseTime.In(loc)
 	ssLocal := sunsetTime.In(loc)

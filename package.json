@@ -8,7 +8,7 @@
     "install:tz-lookup": "go -C tools/tz-lookup mod download",
     "build": "npm run build:solar-lookup && npm run build:tz-lookup && npm run build:icons",
     "build:icons": "bun run --cwd tools/fantasticon index.ts",
-    "build:solar-lookup": "go build -C tools/solar-lookup -o ../../scripts/.config/scripts/solar-lookup .",
-    "build:tz-lookup": "go build -C tools/tz-lookup -o ../../scripts/.config/scripts/tz-lookup ."
+    "build:solar-lookup": "CGO_ENABLED=0 go build -C tools/solar-lookup -trimpath -ldflags='-s -w' -o ../../scripts/.config/scripts/solar-lookup .",
+    "build:tz-lookup": "CGO_ENABLED=0 go build -C tools/tz-lookup -trimpath -ldflags='-s -w' -o ../../scripts/.config/scripts/tz-lookup ."
   }
 }
